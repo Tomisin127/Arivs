@@ -1,0 +1,23 @@
+# depslib dependency file v1.0
+1275099263 source:c:\users\object\desktop\useful_junks\ads_page\arivs\arivs\main.cpp
+	<iostream>
+	<cstdlib>
+	<fstream>
+	<string>
+	<vector>
+	<map>
+	<list>
+	<cstring>
+	<variant>
+	"boost/filesystem.hpp"
+	<filesystem/include/ghc/filesystem.hpp>
+	<boost/algorithm/string.hpp>
+	<boost/proto/proto.hpp>
+	<boost/proto/context/null.hpp>
+	<boost/proto/context.hpp>
+	<boost/proto/context/default.hpp>
+	<boost/proto/eval.hpp>
+	<boost/typeof/std/ostream.hpp>
+	<tuple>
+	<functional>
+
