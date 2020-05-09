@@ -59,6 +59,36 @@ struct color_type
     color black = "#000000";
 };
 
+vector<string>all_existing_style= {"width","height","_float","background","background_blend_mode","background_clip","background_image",
+"background_color","background_position","background_repeat","background_size","background_attachment","border","color","border_style",
+"border_top_style","border_right_style","border_bottom_style","border_left_style","border_bottom","border_bottom_color","border_radius",
+"border_bottom_left_radius","border_bottom_right_radius","border_bottom_width","border_collapse","border_color","border_image",
+"border_image_outset","border_image_repeat","border_image_slice","border_image_source","border_image_width","border_left","border_left_color",
+"border_left_width","border_right","border_right_color","border_right_width","border_spacing","border_top",
+"border_top_color","border_top_left_radius","border_top_right_radius","border_top_width","bottom","box_decoration_break",
+"box_shadow","box_sizing","break_after","break_before","break_inside","caption_side","caret_color","_charset","_clear","clip",
+"column_count","column_fill","column_gap","column_rule","column_rule_color","column_rule_style","column_rule_width","column_span",
+"column_width","columns","content","counter_increment","counter_reset","cursor","direction","display","empty_cells","filter","flex",
+"flex_basis","flex_direction","flex_flow","flex_grow","flex_shrink","flex_wrap","font","_font_face","font_feature_settings","_font_feature_values",
+"font_kerning","font_language_override","font_size_adjust","font_stretch","font_style","font_synthesis","font_variant","font_variant_alternates",
+"font_variant_caps","font_variant_east_asian","font_variant_ligatures","font_variant_numeric","font_variant_position","font_weight",
+"grid","grid_area","grid_auto_columns","grid_auto_flow","grid_auto_rows","grid_column","grid_column_end","grid_column_gap","grid_column_start",
+"grid_gap","grid_row","grid_row_end","grid_row_gap","grid_row_start","grid_template","grid_template_areas","grid_template_columns",
+"grid_template_rows","hanging_punctuation","hyphens","image_rendering","_import","isolation","justify_content","_keyframes","margin",
+"margin_top","margin_right","margin_bottom","margin_left","padding","padding_top","padding_right","padding_bottom","padding_left",
+"outline_style","outline_color","outline_width","outline_offset","outline","border_width","text_align","font_family","font_size",
+"align_content","align_items","align_self","all","animation","animation_delay","animation_direction","animation_duration","animation_fill_mode",
+"animation_iteration_count","animation_name","animation_play_state","animation_timing_function","left","letter_spacing","line_break","line_height",
+"list_style","list_style_image","list_style_position","list_style_type","max_height","max_width","_media","min_height","min_width","mix_blend_mode",
+"object_fit","object_position","opacity","order","orphans","overflow","overflow_wrap","overflow_x","overflow_y","page_break_after",
+"page_break_before","page_break_inside","perspective_origin","perspective","pointer_events","position","_resize","right","scroll_behavior",
+"tab_size","table_layout","text_align_last","text_combine_upright","text_decoration","text_decoration_color","text_decoration_line",
+    "text_decoration_style","text_indent","text_justify","text_orientation","text_overflow","text_shadow","text_transform",
+    "text_underline_position","top","_transform","transform_origin","transform_style","transition","transition_delay",
+    "transition_duration","transition_property","transition_timing_function","quotes","unicode_bidi","user_select","vertical_align",
+    "visibility","white_space","widows","word_break","word_spacing","word_wrap","writing_mode",
+    "z_index", "backface_visibility"};
+
 struct style
 {
 	string width;
@@ -333,6 +363,8 @@ using lambda = function<tuple<multimap<string,vector<pair<string,string>>>,multi
 
 vector<string> style_used;
 
+
+
 vector<string>all_existing_tags_in_html={"header","nav","h1","h2","h3","h4","h5","h6","ul","ol","title","base","bdi","button","center","a","abbr","acronym","address","applet","area",
 "audio","b","body","basefont","bdo","br","bdo","blockquote","canvas","caption","cite","code","col","colgroup","data","datalist","dd","del","details","dfn",
 "dialog","dir","div","dl","dt","em","embed","fieldset","figcaption","figure","font","footer","form","frame","frameset","p1","p2","p3","p4","p5","p6","head",
@@ -388,7 +420,7 @@ void automatic_nest_matcher(string main_name);
 
 auto initializer_list_manipulator(initializer_list<string> inserted_text);
 
-auto assert_mode_of_styling(string sty_typ, string name);
+auto assert_mode_of_styling(string sty_typ, string name,string type_name="");
 
 template<typename... T>
 auto expression_pack_manipulator(T&&... exp);
@@ -427,15 +459,15 @@ string load_image(string img,string alt_value, string title, string identity, st
 
 string link_css(string type, string href, string rel, string media);
 
-string stylesheet_internal(string div_name);
+string stylesheet_internal(string div_name,string type_name="");
 
-string stylesheet_external(string div_name);
-string stylesheet_external(string div_name,string selector);
+string stylesheet_external(string div_name,string type_name="");
+//string stylesheet_external(string div_name,string selector);
 string stylesheet_external(string selector,string a,string b);
 
 void read_to_file(string read);
 void read_to_css_file(string item);
-void read_to_html_at_once(vector<string>args);
+void read_to_html_at_once();
 void read_to_css_at_once();
 
 vector<string> html_code_list;
@@ -451,9 +483,18 @@ map<string,string> one_to_many;
 inline void set_file(string &&html_file_name,string &&css_file_name);
 string get_file_names(const string &key);
 
+string all_style;
+
+
+
 template<typename A, typename B>
 style& construct_attributes(A name,B value)
 {
+
+    for(auto n :all_existing_style)
+{
+    all_style +=n;
+}
 
     list<string>::iterator a;
     list<string>::iterator b;
@@ -461,8 +502,8 @@ style& construct_attributes(A name,B value)
         for(a = name.begin(), b=value.begin(); a!=name.end(),b!=value.end(); a++,b++)
         {
 
-            cout << "a: "<< *a <<endl;
-            cout << "b: "<< *b <<endl;
+            //cout << "a: "<< *a <<endl;
+            //cout << "b: "<< *b <<endl;
 
             //a
 
@@ -605,7 +646,7 @@ style& construct_attributes(A name,B value)
                     if(*a=="background_image" || *a=="bg_img")
             {
                 s.background_image= *b;
-                string text = "background-image: "+s.background_image+";";
+                string text = "background-image: url("+quote+s.background_image+quote+");";
                 style_used.push_back(text);
             }
 
@@ -2100,6 +2141,40 @@ style& construct_attributes(A name,B value)
                 style_used.push_back(text);
             }
 
+
+            if(*a=="" || *b=="")
+            {
+                cout << "\n\n ---WARNING: a pair part of your blueprint is empty!!\n This may cause unusual behaviour" <<endl;
+                break;
+            }
+
+            if(*a=="" || *b!="")
+            {
+                cout << "\n\n ---WARNING: You did not specify the first pair part of your blueprint_b!!\n This may cause unusual behaviour" <<endl;
+                break;
+            }
+
+            if(*a!="" || *b=="")
+            {
+                cout << "\n\n ---WARNING: You did not specify the second pair part of your blueprint_b!!\n This may cause unusual behaviour" <<endl;
+                break;
+            }
+
+            if(*a=="" || *b!="")
+            {
+                cout << "\n\n ---WARNING: You did not specify the first pair part of your blueprint_b!!\n This may cause unusual behaviour" <<endl;
+                break;
+            }
+
+            if(!boost::algorithm::contains(all_style,*a))
+
+            {
+
+                 cout << "\n\n ---ERROR: The style '"<< *a <<"' you entered in blueprint_b is not a valid CSS style" <<endl;
+                 break;
+
+            }
+
         }
 
         return s;
@@ -2414,49 +2489,48 @@ int main()
 
     string list_type = _list({"Home","About","Contact"},"ul");
 
-    arivs::main_body_manipulator =   body(
+    body(
 
-                                    generic("div",[](){
+        generic("div",[](){
 
-                                       blueprint_a(i("class","overall"),i("align","center"));
+           blueprint_a(i("align","center"));
 
-                                       blueprint_b(i("w","auto"),i("h","700px"),i("clr","white"),i("bg_img","url("+quote+"ryan.jpg"+quote+")"));
+           blueprint_b(i("width","auto"),i("height","700px"),i("color","white"),i("bg_img","ryan.jpg"));
 
-                                       return as_tuple(arivs::composition_a,arivs::composition_b,arivs::internal_style);
+           return as_tuple(arivs::composition_a,arivs::composition_b,arivs::external_style);
 
-                                       },
-                                        generic("nav",[](){
+           },
+            generic("nav",[](){
 
-                                               blueprint_a(i("class","swet"),i("align","center"));
+                   blueprint_a(i("class","swet"),i("align","center"));
 
-                                               blueprint_b(i("lst","none"),i("font_size","32px"));
+                   blueprint_b(i("lst","none"),i("font_size","32px"));
 
-                                               return as_tuple(arivs::composition_a,arivs::composition_b,arivs::internal_style);
+                   return as_tuple(arivs::composition_a,arivs::composition_b,arivs::internal_style);
 
-                                               },list_type)
-                                                              )
-                                         ,
+                   },list_type)
+                                  )
+             ,
 
-                                       generic("div",[](){
+           generic("div",[](){
 
-                                               blueprint_a(i("class","extraordinary"),i("align","center"));
+                   blueprint_a(i("id","extraordinary"),i("align","center"));
 
-                                               blueprint_b(i("w","auto"),i("h","50px"),i("text","center"),i("font_size","32px"),i("bg_clr","black"),i("color","white"),i("vertical_align","center"));
+                   blueprint_b(i("width","auto"),i("height","50px"),i("text","center"),i("font_size","32px"),i("background_color","black"),i("color","white"),i("vertical_align","center"));
 
-                                               return as_tuple(arivs::composition_a,arivs::composition_b,arivs::internal_style);
+                   return as_tuple(arivs::composition_a,arivs::composition_b,arivs::external_style);
 
-                                               },"FOOTER")
+                   },"FOOTER")
 
-                                               , generic("oldtown",empty_lambda,"something")
+                   , generic("oldtown",empty_lambda,"something")
 
 
 
 
     );
 
-    //ariv<body>t;
 
-    read_to_html_at_once({arivs::main_body_manipulator,arivs::internal_stylesheet_manipulator});
+    read_to_html_at_once();
 
 
 }
@@ -2508,6 +2582,14 @@ auto lambda_expression_manipulator(lambda p)
 
     }
 
+    string all;
+
+    for(auto n : all_existing_tags_in_html)
+    {
+        all+=n;
+
+    }
+
 
     for(vm=(h).begin(); vm!=(h).end();vm++)
         {
@@ -2524,6 +2606,25 @@ auto lambda_expression_manipulator(lambda p)
 
             }
 
+            else if(vm->first=="id")
+            {
+                class_name = vm->second;
+
+                div_details.insert(pair<string,string>(vm->second,vm->first));
+            }
+
+            else if(boost::algorithm::contains(all,vm->first))
+            {
+
+                class_name = vm->second;
+
+                div_details.insert(pair<string,string>(vm->second,vm->first));
+
+            }
+            else{
+                break;
+            }
+
         }
 
     //vector<pair<string,string>>::iterator ih;
@@ -2533,7 +2634,7 @@ auto lambda_expression_manipulator(lambda p)
             for(vm=(h).begin(); vm!=(h).end();vm++)
         {
 
-            cout << "vm->firstlskdsd: "<< vm->first << endl;
+           // cout << "vm->firstlskdsd: "<< vm->first << endl;
 
             labels+=(vm->first+"="+quote+vm->second+quote);
 
@@ -2609,7 +2710,7 @@ void automatic_nest_matcher(string main_name)
 
                 // b = boost::algorithm::contains(store_created_tags,*i);
                  actual_sub_name = *i;
-                 cout << "actual sub name : "<< actual_sub_name <<endl;
+               //  cout << "actual sub name : "<< actual_sub_name <<endl;
             }
 
               if (b==true)
@@ -2633,21 +2734,21 @@ auto expression_pack_manipulator(T&&... exp)
         return store_value;
 }
 
-auto assert_mode_of_styling(string sty_typ, string name)
+auto assert_mode_of_styling(string sty_typ, string name,string type_name)
 {
 
     if(sty_typ =="internal")
     {
           arivs::internal_stylesheet_manipulator += stylings(
 
-       stylesheet_internal(name),""
+       stylesheet_internal(name,type_name),""
 
                 );
 
     }
     if(sty_typ=="external")
     {
-        stylesheet_external(name);
+        stylesheet_external(name,type_name);
 
     }
 
@@ -2690,12 +2791,12 @@ string load_image(string img,string alt_value, string title, string identity,str
 
     string load_image = "<img src ="+quote+img+quote +" alt="+quote + alt_value+quote+"title=" +quote+title+quote+ " id=" +quote+identity+quote+ " usemap=" +quote +usemap+quote+">";
 
-    html_code_list.push_back(load_image);
+  //  html_code_list.push_back(load_image);
 
     return load_image;
 
 }
-string stylesheet_internal(string div_name)
+string stylesheet_internal(string div_name,string type_name)
 {
     string stylesheet;
 
@@ -2703,11 +2804,17 @@ string stylesheet_internal(string div_name)
 
     string styl;
 
+    string all;
 
     for(auto sty:style_used)
     {
         styl+=sty;
 
+    }
+
+    for(auto n: all_existing_tags_in_html)
+    {
+        all+=n;
     }
 
       for( it = div_details.begin(); it !=div_details.end();it++)
@@ -2720,7 +2827,7 @@ string stylesheet_internal(string div_name)
         if (div_name == it->first and it->second == "class")
         {
 
-            cout << it->first <<"and" << it->second<<endl;
+            //cout << it->first <<"and" << it->second<<endl;
 
             stylesheet = "."+div_name+"{\n"+ styl+";\n}";
 
@@ -2734,6 +2841,15 @@ string stylesheet_internal(string div_name)
 
         }
 
+        else if(div_name=="")
+        {
+            cout << "\n\n---WARNING: class or id not specified\n using '"<<type_name<< "' as structure identifier!!" <<endl;
+            stylesheet =type_name+"{\n"+ styl+";\n}";
+
+
+
+        }
+
     }
 
         style_used.clear();
@@ -2744,7 +2860,7 @@ string stylesheet_internal(string div_name)
         return stylesheet;
 
 }
-string stylesheet_external(string div_name)
+string stylesheet_external(string div_name,string type_name)
 {
 
     string stylesheet;
@@ -2752,6 +2868,13 @@ string stylesheet_external(string div_name)
     map<string,string>::iterator it;
 
     string styl;
+
+    string all;
+
+    for(auto n : all_existing_tags_in_html)
+    {
+        all+= n;
+    }
 
     for(auto sty:style_used)
     {
@@ -2763,6 +2886,7 @@ string stylesheet_external(string div_name)
 
     bool is_class_available;
     bool is_id_available;
+
 
     for( it = div_details.begin(); it !=div_details.end();it++)
     {
@@ -2789,6 +2913,15 @@ string stylesheet_external(string div_name)
             }
 
         }
+
+        if(div_name =="")
+        {
+
+             stylesheet =type_name+"{\n"+ styl+";\n}";
+             cout << "\n\n---WARNING: class or id not specified\n using '"<<type_name<< "' as structure identifier!!" <<endl;
+
+        }
+
     }
 
 
@@ -2819,7 +2952,7 @@ string stylesheet_external(string div_name)
     }
 
 
-    string stylesheet_external(string div_name,string selector)
+   /* string stylesheet_external(string div_name,string selector)
 {
     automatic_nest_matcher(div_name);
 
@@ -2894,6 +3027,8 @@ for( it = div_details.begin(); it !=div_details.end();it++)
     return stylesheet;
 
 }
+
+   */
     string stylesheet_external(string selector,string a,string b)
 {
     string get_key;
@@ -2988,6 +3123,8 @@ inline string body(string text , T&&... args)
     auto other_text = expression_pack_manipulator(args...);
 
     string _start = "<body> "+text+other_text+"</body>";
+
+    arivs::main_body_manipulator = _start;
 
     return _start;
 
@@ -3198,7 +3335,7 @@ int get_file_size(string filename)
 
 
 // call this function at the end of the script in the main function
-void read_to_html_at_once(vector<string> args)
+void read_to_html_at_once()
 {
 
  //auto get_body = []()-> decltype(body)(string,auto&&...){return body;};
@@ -3210,15 +3347,9 @@ void read_to_html_at_once(vector<string> args)
  //cout <<
 
 
+    html_code_list.push_back(arivs::main_body_manipulator);
 
-    string get_text;
-
-    for(auto i = args.begin();i!=args.end(); i++)
-    {
-         get_text+=*i;
-    }
-   // html_code_list.push_back(foo);
-    html_code_list.push_back(get_text);
+    html_code_list.push_back(arivs::internal_stylesheet_manipulator);
 
     //default settings for html and doctype
     html_object <<"<!DOCTYPE html>\n";
@@ -3260,11 +3391,11 @@ inline void set_file(string &&html_file_name,string &&css_file_name)
 
     html_object.open(html_file_name);
     if (html_object.is_open())
-        cout << "HTML FILE IS OPEN FOR READING\n";
+        cout << "HTML FILE '"<< html_file_name <<"' IS OPEN FOR READING\n";
 
     css_object.open(css_file_name);
     if(css_object.is_open())
-        cout << "CSS FILE IS OPEN FOR READING\n";
+        cout << "CSS FILE '"<<css_file_name <<"' IS OPEN FOR READING\n\n";
 
 
     file_names.push_back(html_file_name);
@@ -3304,14 +3435,14 @@ string generic(string type, lambda h,string text,T&&... args)
 
     auto value = lambda_expression_manipulator(h);
 
-     cout << "class name : "<< get<4>(value) <<endl;
+     //cout << "class name : "<< get<4>(value) <<endl;
 
     auto other_text = expression_pack_manipulator(args...);
 
     if (get<5>(value)!="inline")
     {
 
-        assert_mode_of_styling(get<5>(value),get<4>(value));
+        assert_mode_of_styling(get<5>(value),get<4>(value),type);
 
     }
 
@@ -3351,12 +3482,12 @@ string generic(string type, lambda h,string text)
 
     auto value = lambda_expression_manipulator(h);
 
-    cout << "class name : "<< get<4>(value) <<endl;
+  //  cout << "class name : "<< get<4>(value) <<endl;
 
     if (get<5>(value)!="inline")
     {
 
-        assert_mode_of_styling(get<5>(value),get<4>(value));
+        assert_mode_of_styling(get<5>(value),get<4>(value),type);
 
     }
 
