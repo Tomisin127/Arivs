@@ -33,6 +33,7 @@ __DONATIONS AND SUPPORT__
 #include <boost/typeof/std/ostream.hpp>
 #include <tuple>
 #include <functional>
+#include <sstream>
 
 
 using namespace std;
@@ -379,6 +380,41 @@ ostream &operator<<(ostream &os, style &c)
     return os;
 }
 
+namespace arivs{
+
+    using style_property = list<string>;
+    using style_value = list<string>;
+    style null;
+    uintmax_t zero = 0;
+
+    vector<pair<string,string>> attribute;
+    multimap<string,vector<pair<string,string>>>composition;
+
+    multimap<string,vector<pair<string,string>>>composition_a;
+    multimap<string,vector<pair<string,string>>>composition_b;
+
+    multimap<string,vector<pair<string,string>>>nothing;
+
+    string gt= ">";
+    string lt= ">";
+    string gte =">=";
+    string lte ="<=";
+
+    string descendant_selector = " ";
+    string child_selector = ">";
+    string adjacent_slibing_selector = "+";
+    string general_slibing_selector ="~";
+
+    string internal_style="internal";
+    string external_style="external";
+    string inline_style="inline";
+
+    string internal_stylesheet_manipulator;
+    string main_body_manipulator;
+
+};
+
+
 struct coords
 {
     int x=0;
@@ -399,10 +435,7 @@ void blueprint_b(Args&&... args){}
 template<typename T, typename... Args>
 void blueprint_b(T&& arg,Args&&...optional);
 
-
-
-template<typename... T>
-inline string body(string text,T&&... args);
+inline string body(string text);
 
 template<typename... T>
 inline string stylings(string text,T&&... args);
@@ -414,13 +447,15 @@ inline string area(string shape , coords &c, string href, string alt);
 template<typename... T>
 inline string script(string text,T&&... args);
 
-auto lambda_expression_manipulator(lambda p);
+using type_tuple = tuple<string,string,string,string,string,string>;
+
+type_tuple lambda_expression_manipulator(lambda p);
 
 void automatic_nest_matcher(string main_name);
 
 auto initializer_list_manipulator(initializer_list<string> inserted_text);
 
-auto assert_mode_of_styling(string sty_typ, string name,string type_name="");
+void assert_mode_of_styling(string sty_typ, string name,string type_name="");
 
 template<typename... T>
 auto expression_pack_manipulator(T&&... exp);
@@ -443,18 +478,6 @@ inline string p_text(int p_level,lambda r, string text);
 template<typename... T>
 inline string p_text(int p_level,lambda r, string text,T&&... args );
 
-template<typename ...T>
-string generic(string type, lambda h,string text,T&&... args);
-
-string generic(string type, lambda h,string text);
-
-string generic(string type,string text);
-
-template<typename... T>
-string generic(string type,string text,T&&...args);
-
-string generic(string type);
-
 string load_image(string img,string alt_value, string title, string identity, string usemap);
 
 string link_css(string type, string href, string rel, string media);
@@ -473,7 +496,7 @@ void read_to_css_at_once();
 vector<string> html_code_list;
 vector<string> css_code_list_external;
 
-map<string,string>div_details;
+map<string,string>details;
 vector<string> file_names;
 
 style s;
@@ -486,9 +509,7 @@ string get_file_names(const string &key);
 string all_style;
 
 
-
-template<typename A, typename B>
-style& construct_attributes(A name,B value)
+void construct_attributes(list<string> name,list<string>value)
 {
 
     for(auto n :all_existing_style)
@@ -501,9 +522,6 @@ style& construct_attributes(A name,B value)
 
         for(a = name.begin(), b=value.begin(); a!=name.end(),b!=value.end(); a++,b++)
         {
-
-            //cout << "a: "<< *a <<endl;
-            //cout << "b: "<< *b <<endl;
 
             //a
 
@@ -2172,285 +2190,316 @@ style& construct_attributes(A name,B value)
 
                  cout << "\n\n ---ERROR: The style '"<< *a <<"' you entered in blueprint_b is not a valid CSS style" <<endl;
                  break;
-
             }
 
         }
 
-        return s;
 }
 
-vector<string> raked_names;
+// THIS CLASS WAS WRITTEN BY ATMA
 
-class design{
+stringstream total_text;
 
+class generic{
 private:
-
-    map<string,string>sty;
-    vector<pair<string,string>>get_sty;
-    multimap<string,vector<pair<string,string>>>ss;
-    vector<decltype(get_sty)>save_methodology;
-
+    string txt;
 public:
 
+    vector<generic*>children;
+    generic *parent = NULL;
 
-    design()
+    string output;
+
+    string type_t;
+
+
+
+    string inline_attributes;
+
+    generic()
     {
-        //cout << "DESIGN CONSTRUCTOR "<<endl;
+
     }
-    void dispose_methodology(vector<pair<string,string>>d)
-    {
-        save_methodology.push_back(d);
 
+ generic(string type, lambda h,string text)
+{
+
+    type_t = type;
+
+    type_tuple value = lambda_expression_manipulator(h);
+
+    string all;
+
+    for(auto r : all_existing_tags_in_html)
+    {
+        all += r;
     }
-    void dispose_methodology(multimap<string,vector<pair<string,string>>>d)
-    {
 
-        ss =d;
-    }
-
-
-     void make_external(multimap<string,vector<pair<string,string>>>p)
-    {
-        ss = p;
-
-        multimap<string,vector<pair<string,string>>>::iterator it;
-        vector<pair<string,string>>::iterator vp;
-
-        list<string>prop;
-        list<string>val;
-
-        string key;
-
-        string structural_name;
-
-        for(it =p.begin(); it!=p.end(); it++)
+    if(type!="" and boost::algorithm::contains(all, type))
         {
-            key = it->first;
+            txt = text;
+        }
 
-            for(vp=(it->second).begin();vp!= (it->second).end();vp++)
-            {
-                if(vp->first=="class"|| vp->first=="c")
+    else{
+            cout<< "----ERROR: " << type << " is not a valid HTML TAG" <<endl;
+            //return "";
+        }
+
+
+
+    if (get<5>(value)!="inline")
+    {
+
+        assert_mode_of_styling(get<5>(value),get<4>(value),type);
+
+    }
+
+    get<0>(value) = get<1>(value)+quote+get<2>(value)+quote;
+
+    inline_attributes = get<3>(value)+get<0>(value);
+
+
+    if(get<5>(value)=="inline")
+    {
+
+        arivs::attribute.clear();
+        arivs::composition_a.clear();
+        arivs::composition_b.clear();
+
+    }
+}
+
+generic(string type,string text)
+{
+
+    string type_t = type;
+
+    string all;
+
+    for(auto r : all_existing_tags_in_html)
+    {
+        all += r;
+    }
+
+    if(type!="" and boost::algorithm::contains(all, type))
+        {
+        txt = text;
+        }
+
+    else{
+            cout<< "----ERROR: " << type << " is not a valid HTML TAG" <<endl;
+       // return "";
+        }
+
+}
+
+generic(string type)
+{
+    type_t = type;
+
+    string all;
+
+    for(auto r : all_existing_tags_in_html)
+    {
+        all += r;
+    }
+
+    if(type!="" and boost::algorithm::contains(all, type))
+        {
+        txt = type;
+        }
+
+    else{
+            cout<< "----ERROR: " << type << " is not a valid HTML TAG" <<endl;
+        //return "";
+        }
+
+}
+
+
+
+    void add_element(generic& element)
+    {
+        element.make_parent(this);
+        children.push_back((generic*)&element);
+    }
+
+    void add_element(generic* element)
+    {
+        element->make_parent(this);
+        children.push_back(element);
+    }
+
+    generic* get_parent()
+    {
+        return parent;
+    }
+    void make_parent(generic* parent)
+    {
+        this->parent = parent;
+    }
+
+    int get_child_index(generic* element)
+    {
+			int _count = 0;
+			for(generic* child : children)
                 {
-                    structural_name = vp->second;
-                    break;
-
-                }
-
-                else{
-
-                    prop.insert(prop.begin(),vp->first);
-                    val.insert(val.begin(),vp->second);
-
-                }
-
-            }
-        }
-
-
-        construct_attributes(prop,val);
-
-        stylesheet_external(structural_name);
-
+				if(child == element)
+				{
+					return _count;
+				}
+				++_count;
+			}
+			return -1;
     }
 
+		string calculate_position()
+		 {
+			vector<string> path;
+			stringstream ss;
 
-        void make_external(vector<pair<string,string>>g)
-    {
+			calculate_position_recursive(this, path);
 
-        get_sty=g;
-
-        list<string> prop;
-        list<string> val;
-
-        string structural_name;
-
-        for(auto &r : get_sty)
-        {
-
-            sty.insert(r);
-
-        }
-
-            for(auto &f:sty)
-        {
-            if(f.first=="class" || f.first=="c")
+			int size = path.size();
+			for(int i = size - 1; i >= 0; --i)
             {
-                structural_name = f.second;
-                break;
-            }
+				ss << path[i];
+				if(i != 0)
+				 {
+					ss << " > ";
+				 }
+			}
+			return ss.str();
+		}
 
-        }
-        list<string>::iterator it;
-        for(auto&f:sty)
-        {
-
-
-            {
-                prop.insert(prop.begin(),f.first);
-
-                val.insert(val.begin(),f.second);
-
-            }
-
-
-        }
-
-            construct_attributes(prop,val);
-
-            stylesheet_external(structural_name);
-
-    }
-
-void rake_structural_tree()
-    {
-
-        vector<string>::iterator ip;
-
-
-        for(auto &t : save_methodology)
-        {
-            for (auto&v :t)
-            {
-                if(v.first =="class" ||v.first=="c")
+    	void calculate_position_recursive(generic* e, vector<string>& path)
+    	{
+            if(e->parent)
                 {
 
-                raked_names.push_back(v.second);
+                int location = e->parent->get_child_index(e);
+
+                if(location == -1)
+                    {
+                        path.push_back(e->type_t);
+                    }
+                    else
+						{
+							path.push_back(e->type_t+ ":nth-child(" + to_string(location + 1) + ")");
+						}
+					}
+					else
+                        {
+                            path.push_back(e->type_t);
+                        }
+
+				if(e->parent)
+                    {
+                        calculate_position_recursive(e->parent, path);
+                    }
+			}
 
 
+		void print_spaces(int depth)
+		 {
+			for(int i = 0; i < depth; ++i) {
+				total_text << "  ";
+			}
+		}
+
+		void print_tag_start(generic* e, int depth,string inline_attrib)
+		{
+			print_spaces(depth);
+            total_text << "<" << e->type_t <<" " <<inline_attrib << ">";
+
+		}
+
+
+
+		void print_children(generic* e, int depth)
+		 {
+			for(generic* child : e->children)
+                {
+				total_text << endl;
+				display_recursive(child, depth + 1);
                 }
+		}
+		void print_text(generic* e, int depth)
+		{
+			if(!e->txt.empty())
+                {
+				total_text << endl;
+				print_spaces(depth + 1);
+				total_text << e->txt;
+                }
+		}
 
+		void print_tag_end(generic* e, int depth)
+		{
+				print_spaces(depth);
+				total_text << "</" << e->type_t +">";
+		}
 
-            }
-        }
+		void display_recursive(generic* e, int depth)
+		{
 
-     /*   ip = std::unique(raked_names.begin(),raked_names.begin()+raked_names.size());
+			if(e != NULL)
+                {
 
-        raked_names.resize(std::distance(raked_names.begin(),ip));
+				print_tag_start(e, depth,e->inline_attributes);
 
+				{
+					print_children(e, depth);
+					print_text(e, depth);
+				}
+				print_tag_end(e, depth);
+			}
+		}
 
-        for (ip = raked_names.begin(); ip != raked_names.end(); ip++)
-            cout << "raked names: "<< *ip <<endl;
+		void display()
+		{
+            display_recursive(this,0);
+		}
 
-     */
-
-    }
-
-
-    string make_inline(multimap<string,vector<pair<string,string>>>p)
-    {
-        multimap<string,vector<pair<string,string>>>::iterator it;
-        vector<pair<string,string>>::iterator vp;
-
-        string _start,total="";
-
-        string key;
-
-        for(it =p.begin(); it!=p.end(); it++)
-        {
-            key = it->first;
-
-            for(vp=(it->second).begin();vp!= (it->second).end();vp++)
-            {
-                 _start =vp->first +": "+vp->second +";";
-
-                 total+=_start;
-
-
-            }
-        }
-
-        string construct = key+"= "+quote+total+quote;
-
-        //style_used.push_back(construct);
-
-        return construct;
-
-    }
-
-    string make_inline(vector<pair<string,string>>g)
-    {
-        get_sty=g;
-
-            string _sty,total ="";
-
-        for(auto &r : get_sty)
-        {
-
-            sty.insert(r);
-
-        }
-
-            for(auto &f:sty)
-        {
-            _sty = f.first +" : "+f.second;
-
-            total+=_sty;
-
-        }
-
-        string construct = quote+total+quote;
-
-
-        return construct;
-
-    }
-
-    template<typename u,typename... args>
-    design(pair<string,u> w, pair<string,args>... p)
-    {
-        sty.insert(w,(p)...);
-
-    }
-        template<typename u,typename... args>
-        design(pair<const char*,u> w, pair<const char*,args>... p)
-    {
-        sty.insert(w,(p)...);
-
-    }
-
-    string* get_design_value(string&& attr)
-    {
-     return &sty[attr];
-    }
 
 };
+
+// THIS CLASS WAS WRITTEN BY ATMA
+class exterior {
+	public:
+		generic* root;
+		exterior() = default;
+		explicit exterior(const generic& root) : root((generic*)&root) { }
+		explicit exterior(generic* root) : root(root) { }
+
+		void set_root(generic* root)
+		 {
+			this->root = root;
+		 }
+		void set_root(const generic& root)
+		 {
+			this->root = (generic*)&root;
+         }
+		generic* getRoot()
+		{
+			return root;
+		}
+		void display()
+		{
+			if(root != NULL)
+                {
+				root->display();
+                }
+			else
+			{
+				cout << "EMPTY EXTERIOR!";
+			}
+		}
+
+};
+
 
 string sty;
-
-namespace arivs{
-
-    using style_property = list<string>;
-    using style_value = list<string>;
-    style null;
-    uintmax_t zero = 0;
-
-    vector<pair<string,string>> attribute;
-    multimap<string,vector<pair<string,string>>>composition;
-
-    multimap<string,vector<pair<string,string>>>composition_a;
-    multimap<string,vector<pair<string,string>>>composition_b;
-
-    multimap<string,vector<pair<string,string>>>nothing;
-
-    string gt= ">";
-    string lt= ">";
-    string gte =">=";
-    string lte ="<=";
-
-    string descendant_selector = " ";
-    string child_selector = ">";
-    string adjacent_slibing_selector = "+";
-    string general_slibing_selector ="~";
-
-    string internal_style="internal";
-    string external_style="external";
-    string inline_style="inline";
-
-    string internal_stylesheet_manipulator;
-    string main_body_manipulator;
-
-};
 
 using i = pair<string,string>;
 
@@ -2462,73 +2511,39 @@ auto as_tuple(decltype(arivs::composition) a,decltype(arivs::composition) b,stri
 
 auto empty_lambda = [](){return as_tuple(arivs::nothing,arivs::nothing);};
 
-void conceptual_methodology(list<string>&properties,list<string>&values)
-{
-
-    construct_attributes(properties,values);
-
-}
-
-map<string,string> structural_tree;
-
 void composition_a();
 void composition_b();
-
-
-//template<string(*F)(string,T&&...)>
-
-//struct ariv{};
 
 int main()
 {
 
+
+    exterior anchor_point;
 
     link_css("text/css", "ads.css","stylesheet", "");
 
     set_file("html_demo.html","css_demo.css");
 
     string list_type = _list({"Home","About","Contact"},"ul");
+    generic first("div",[](){ blueprint_a(i("class","bolaji"),i("align","center"));
+    return as_tuple(arivs::composition_a,arivs::nothing,arivs::inline_style);
+    },"text here");
 
-    body(
+    generic second("span",empty_lambda,"text here");
 
-        generic("div",[](){
+    generic third("h",empty_lambda,"text here");
 
-           blueprint_a(i("align","center"));
+    generic fourth("p", empty_lambda,"text here");
 
-           blueprint_b(i("width","auto"),i("height","700px"),i("color","white"),i("bg_img","ryan.jpg"));
+    first.add_element(second);
+    first.add_element(third);
+    second.add_element(fourth);
 
-           return as_tuple(arivs::composition_a,arivs::composition_b,arivs::external_style);
+    anchor_point.root =&first;
 
-           },
-            generic("nav",[](){
+    anchor_point.display();
 
-                   blueprint_a(i("class","swet"),i("align","center"));
-
-                   blueprint_b(i("lst","none"),i("font_size","32px"));
-
-                   return as_tuple(arivs::composition_a,arivs::composition_b,arivs::internal_style);
-
-                   },list_type)
-                                  )
-             ,
-
-           generic("div",[](){
-
-                   blueprint_a(i("id","extraordinary"),i("align","center"));
-
-                   blueprint_b(i("width","auto"),i("height","50px"),i("text","center"),i("font_size","32px"),i("background_color","black"),i("color","white"),i("vertical_align","center"));
-
-                   return as_tuple(arivs::composition_a,arivs::composition_b,arivs::external_style);
-
-                   },"FOOTER")
-
-                   , generic("oldtown",empty_lambda,"something")
-
-
-
-
-    );
-
+    cout << "fourth position: " << fourth.calculate_position() <<endl;
 
     read_to_html_at_once();
 
@@ -2536,7 +2551,7 @@ int main()
 }
 
 
-auto lambda_expression_manipulator(lambda p)
+type_tuple lambda_expression_manipulator(lambda p)
 {
 
     auto first_multimap = get<0>(p());
@@ -2572,14 +2587,6 @@ auto lambda_expression_manipulator(lambda p)
 
         h = fm->second;
 
-
-
-       // cout << "fm->second->second: "<< (fm->second)[0].second <<endl;
-
-        //h.insert(h.end(),(fm->second).begin(),(fm->second).end());
-
-        //cout << "hsecond: "<< h[0].second <<endl;
-
     }
 
     string all;
@@ -2598,11 +2605,7 @@ auto lambda_expression_manipulator(lambda p)
             {
                 class_name = vm->second;
 
-                div_details.insert(pair<string,string>(vm->second,vm->first));
-
-                //cout << "vm-><>>>>second: "<< vm->second <<endl;
-
-                //break;
+                details.insert(pair<string,string>(vm->second,vm->first));
 
             }
 
@@ -2610,7 +2613,7 @@ auto lambda_expression_manipulator(lambda p)
             {
                 class_name = vm->second;
 
-                div_details.insert(pair<string,string>(vm->second,vm->first));
+                details.insert(pair<string,string>(vm->second,vm->first));
             }
 
             else if(boost::algorithm::contains(all,vm->first))
@@ -2618,23 +2621,18 @@ auto lambda_expression_manipulator(lambda p)
 
                 class_name = vm->second;
 
-                div_details.insert(pair<string,string>(vm->second,vm->first));
+                details.insert(pair<string,string>(vm->second,vm->first));
 
             }
-            else{
+            else
+            {
                 break;
             }
 
         }
 
-    //vector<pair<string,string>>::iterator ih;
-    //ih = unique(h.begin(),h.begin()+h.size());
-    //h.resize(distance(h.begin(),ih));
-
             for(vm=(h).begin(); vm!=(h).end();vm++)
         {
-
-           // cout << "vm->firstlskdsd: "<< vm->first << endl;
 
             labels+=(vm->first+"="+quote+vm->second+quote);
 
@@ -2657,7 +2655,6 @@ auto lambda_expression_manipulator(lambda p)
 
          for(pv=(k).begin(); pv!=(k).end();pv++)
         {
-         //   cout << "pv->second: "<< pv->second <<endl;
 
             {
                 temp1.insert(temp1.end(),pv->first);
@@ -2666,27 +2663,9 @@ auto lambda_expression_manipulator(lambda p)
 
             }
 
+        }
 
-            /* if(pv->first!="id")
-            {
-                temp1.insert(temp1.begin(),pv->first);
-                temp2.insert(temp2.begin(),pv->second);
-                construct_attributes(temp1,temp2);
-
-                //stylings = pv->first+": "+pv->second+";";
-                s_cummulative+=sty;
-                break;
-
-            }
-
-            */
-
-
-    }
-
-               construct_attributes(temp1,temp2);
-
-                //cout << "sty: "<<sty<<endl;
+            construct_attributes(temp1,temp2);
 
              s_cummulative+=sty;
 
@@ -2696,31 +2675,6 @@ auto lambda_expression_manipulator(lambda p)
     return make_tuple(construct,referal,s_cummulative,l_cummulative,class_name,style_type);
 }
 
-
-void automatic_nest_matcher(string main_name)
-{
-  bool b;
-
- string actual_sub_name;
-
-       for(auto i =raked_names.begin();i!=raked_names.end(); i++)
-        {
-            if (*i != main_name)
-            {
-
-                // b = boost::algorithm::contains(store_created_tags,*i);
-                 actual_sub_name = *i;
-               //  cout << "actual sub name : "<< actual_sub_name <<endl;
-            }
-
-              if (b==true)
-                {
-                    structural_tree.insert(pair<string,string>(main_name,actual_sub_name));
-
-                    break;
-                }
-        }
-}
 
 template<typename... T>
 auto expression_pack_manipulator(T&&... exp)
@@ -2734,7 +2688,7 @@ auto expression_pack_manipulator(T&&... exp)
         return store_value;
 }
 
-auto assert_mode_of_styling(string sty_typ, string name,string type_name)
+void assert_mode_of_styling(string sty_typ, string name,string type_name)
 {
 
     if(sty_typ =="internal")
@@ -2817,27 +2771,25 @@ string stylesheet_internal(string div_name,string type_name)
         all+=n;
     }
 
-      for( it = div_details.begin(); it !=div_details.end();it++)
+      for( it = details.begin(); it !=details.end();it++)
     {
 
         if(div_name==it->first)
         {
 
 
-        if (div_name == it->first and it->second == "class")
-        {
+            if (div_name == it->first and it->second == "class")
+            {
 
-            //cout << it->first <<"and" << it->second<<endl;
+                stylesheet = "."+div_name+"{\n"+ styl+";\n}";
 
-            stylesheet = "."+div_name+"{\n"+ styl+";\n}";
+            }
 
-        }
+            else if (div_name == it->first and it->second == "id")
+            {
+                stylesheet = "#"+div_name+"{\n"+ styl+";\n}";
 
-        else if (div_name == it->first and it->second == "id")
-        {
-            stylesheet = "#"+div_name+"{\n"+ styl+";\n}";
-
-        }
+            }
 
         }
 
@@ -2845,19 +2797,16 @@ string stylesheet_internal(string div_name,string type_name)
         {
             cout << "\n\n---WARNING: class or id not specified\n using '"<<type_name<< "' as structure identifier!!" <<endl;
             stylesheet =type_name+"{\n"+ styl+";\n}";
-
-
-
         }
 
     }
 
-        style_used.clear();
+    style_used.clear();
     arivs::attribute.clear();
     arivs::composition_a.clear();
     arivs::composition_b.clear();
 
-        return stylesheet;
+    return stylesheet;
 
 }
 string stylesheet_external(string div_name,string type_name)
@@ -2882,13 +2831,12 @@ string stylesheet_external(string div_name,string type_name)
         styl+=sty;
 
     }
-       // stylesheet = "."+div_name+"{\n"+ styl+";\n}";
 
     bool is_class_available;
     bool is_id_available;
 
 
-    for( it = div_details.begin(); it !=div_details.end();it++)
+    for( it = details.begin(); it !=details.end();it++)
     {
 
         if(div_name==it->first)
@@ -2947,7 +2895,7 @@ string stylesheet_external(string div_name,string type_name)
     arivs::composition_a.clear();
     arivs::composition_b.clear();
 
-        return stylesheet;
+    return stylesheet;
 
     }
 
@@ -2987,7 +2935,7 @@ string stylesheet_external(string div_name,string type_name)
     }
 
 
-    for( it = div_details.begin(); it !=div_details.end();it++)
+    for( it = details.begin(); it !=details.end();it++)
 {
     if(div_name==it->first)
     {
@@ -2997,7 +2945,7 @@ string stylesheet_external(string div_name,string type_name)
             }
     }
 }
-for( it = div_details.begin(); it !=div_details.end();it++)
+for( it = details.begin(); it !=details.end();it++)
 {
     if (get_key==it->first)
     {
@@ -3029,75 +2977,6 @@ for( it = div_details.begin(); it !=div_details.end();it++)
 }
 
    */
-    string stylesheet_external(string selector,string a,string b)
-{
-    string get_key;
-    string get_key_structure;
-    string value;
-    string value_structure;
-    string first_construct;
-    string second_construct;
-    string construct;
-    string stylesheet;
-
-    string styl;
-
-
-    for(auto i : one_to_many)
-    {
-        for(auto k = div_details.begin();k!=div_details.end();k++)
-        {
-            if(k->first == i.second)
-            {
-                value = i.second;
-                get_key=i.first;
-                value_structure=k->second;
-            }
-        }
-
-    }
-
-    for(auto k = div_details.begin();k!=div_details.end();k++)
-        {
-            if(get_key==k->first)
-            {
-                get_key_structure=k->second;
-            }
-        }
-
-        if(get_key_structure=="class")
-        {
-            first_construct= "."+get_key+selector;
-        }
-
-        if(value_structure=="class")
-        {
-            second_construct ="."+value;
-        }
-    construct = first_construct+second_construct;
-
-    for(auto sty:style_used)
-    {
-        styl+=sty;
-    }
-
-
-    stylesheet = construct+"{\n"+ styl+";\n}";
-
-    css_code_list_external.push_back(stylesheet);
-
-    style_used.clear();
-
-    one_to_many.clear();
-
-     arivs::attribute.clear();
-    arivs::composition_a.clear();
-    arivs::composition_b.clear();
-
-
-    return stylesheet;
-
-}
 
 
 string link_css(string type, string href, string rel, string media)
@@ -3116,13 +2995,12 @@ void read_to_file(string read)
 
 }
 
-template<typename... T>
-inline string body(string text , T&&... args)
+inline string body(string text)
 {
 
-    auto other_text = expression_pack_manipulator(args...);
+    //auto other_text = expression_pack_manipulator(args...);
 
-    string _start = "<body> "+text+other_text+"</body>";
+    string _start = "<body> "+text+"</body>";
 
     arivs::main_body_manipulator = _start;
 
@@ -3338,14 +3216,7 @@ int get_file_size(string filename)
 void read_to_html_at_once()
 {
 
- //auto get_body = []()-> decltype(body)(string,auto&&...){return body;};
-
- //cout << "body type : "<< decltype(get_body) <<endl;
-
- //void (*b)(string,auto&&...) = &body;
-
- //cout <<
-
+    body(total_text.str());
 
     html_code_list.push_back(arivs::main_body_manipulator);
 
@@ -3361,6 +3232,8 @@ void read_to_html_at_once()
                     html_object << *i <<endl;
 
                 }
+
+
 
     html_object <<"</html>\n";
 
@@ -3427,173 +3300,6 @@ string get_file_names(const string &key)
     return value;
 
 }
-
-
-template<typename ...T>
-string generic(string type, lambda h,string text,T&&... args)
-{
-
-    auto value = lambda_expression_manipulator(h);
-
-     //cout << "class name : "<< get<4>(value) <<endl;
-
-    auto other_text = expression_pack_manipulator(args...);
-
-    if (get<5>(value)!="inline")
-    {
-
-        assert_mode_of_styling(get<5>(value),get<4>(value),type);
-
-    }
-
-    get<0>(value) = get<1>(value)+quote+get<2>(value)+quote;
-
-    string all;
-
-    for(auto r : all_existing_tags_in_html)
-    {
-        all += r;
-    }
-
-    if(type!="" and boost::algorithm::contains(all, type))
-        {
-        string create = "<"+type+" "+get<3>(value)+get<0>(value)+">"+text+other_text+"</"+type+">";
-        return create;
-        }
-
-    else{
-            cout<< "----ERROR: " << type << " is not a valid HTML TAG" <<endl;
-
-        return "";
-        }
-
-    if(get<5>(value)=="inline")
-    {
-
-        arivs::attribute.clear();
-        arivs::composition_a.clear();
-        arivs::composition_b.clear();
-
-    }
-}
-
-string generic(string type, lambda h,string text)
-{
-
-    auto value = lambda_expression_manipulator(h);
-
-  //  cout << "class name : "<< get<4>(value) <<endl;
-
-    if (get<5>(value)!="inline")
-    {
-
-        assert_mode_of_styling(get<5>(value),get<4>(value),type);
-
-    }
-
-    get<0>(value) = get<1>(value)+quote+get<2>(value)+quote;
-
-    string all;
-
-    for(auto r : all_existing_tags_in_html)
-    {
-        all += r;
-    }
-
-    if(type!="" and boost::algorithm::contains(all, type))
-        {
-        string create = "<"+type+" "+get<3>(value)+get<0>(value)+">"+text+"</"+type+">";
-        return create;
-        }
-
-    else{
-            cout<< "----ERROR: " << type << " is not a valid HTML TAG" <<endl;
-        return "";
-        }
-
-    if(get<5>(value)=="inline")
-    {
-
-        arivs::attribute.clear();
-        arivs::composition_a.clear();
-        arivs::composition_b.clear();
-
-    }
-
-}
-
-string generic(string type,string text)
-{
-
-    string all;
-
-    for(auto r : all_existing_tags_in_html)
-    {
-        all += r;
-    }
-
-    if(type!="" and boost::algorithm::contains(all, type))
-        {
-        string create = "<"+type+">"+text+"</"+type+">";
-        return create;
-        }
-
-    else{
-            cout<< "----ERROR: " << type << " is not a valid HTML TAG" <<endl;
-        return "";
-        }
-
-}
-
-template<typename... T>
-string generic(string type,string text,T&&...args)
-{
-    auto other_text = expression_pack_manipulator(args...);
-
-    string all;
-
-    for(auto r : all_existing_tags_in_html)
-    {
-        all += r;
-    }
-
-    if(type!="" and boost::algorithm::contains(all, type))
-        {
-        string create = "<"+type+">"+text+other_text+"</"+type+">";
-        return create;
-        }
-
-    else{
-            cout<< "----ERROR: " << type << " is not a valid HTML TAG" <<endl;
-        return "";
-        }
-
-}
-
-
-string generic(string type)
-{
-
-    string all;
-
-    for(auto r : all_existing_tags_in_html)
-    {
-        all += r;
-    }
-
-    if(type!="" and boost::algorithm::contains(all, type))
-        {
-        string create = "<"+type+">";
-        return create;
-        }
-
-    else{
-            cout<< "----ERROR: " << type << " is not a valid HTML TAG" <<endl;
-        return "";
-        }
-
-}
-
 
 void composition_a()
 {
