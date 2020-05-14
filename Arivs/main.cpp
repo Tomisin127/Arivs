@@ -13,6 +13,8 @@ __DONATIONS AND SUPPORT__
 		USDT = 17JDDhpnvBPz3FEQsUxEyYEPtH6KVjVUZJ
 */
 
+#pragma once
+
 #include <iostream>
 #include <cstdlib>
 #include <fstream>
@@ -455,7 +457,7 @@ void automatic_nest_matcher(string main_name);
 
 auto initializer_list_manipulator(initializer_list<string> inserted_text);
 
-void assert_mode_of_styling(string sty_typ, string name,string type_name="");
+void assert_mode_of_styling(string sty_typ, string name,string position,string type_name="");
 
 template<typename... T>
 auto expression_pack_manipulator(T&&... exp);
@@ -482,9 +484,9 @@ string load_image(string img,string alt_value, string title, string identity, st
 
 string link_css(string type, string href, string rel, string media);
 
-string stylesheet_internal(string div_name,string type_name="");
+string stylesheet_internal(string div_name,string pos,string type_name="");
 
-string stylesheet_external(string div_name,string type_name="");
+string stylesheet_external(string div_name,string pos,string type_name="");
 //string stylesheet_external(string div_name,string selector);
 string stylesheet_external(string selector,string a,string b);
 
@@ -2200,10 +2202,19 @@ void construct_attributes(list<string> name,list<string>value)
 
 stringstream total_text;
 
+class generic;
+vector<generic*>all_objects;
+
+
 class generic{
 private:
     string txt;
+
 public:
+
+    string mode_of_styling;
+    string name_of_tag;
+    string type_of_tag;
 
     vector<generic*>children;
     generic *parent = NULL;
@@ -2219,7 +2230,10 @@ public:
     generic()
     {
 
+
+
     }
+
 
  generic(string type, lambda h,string text)
 {
@@ -2245,14 +2259,12 @@ public:
             //return "";
         }
 
+    mode_of_styling = get<5>(value);
 
+    name_of_tag = get<4>(value);
 
-    if (get<5>(value)!="inline")
-    {
+    type_of_tag = type;
 
-        assert_mode_of_styling(get<5>(value),get<4>(value),type);
-
-    }
 
     get<0>(value) = get<1>(value)+quote+get<2>(value)+quote;
 
@@ -2267,6 +2279,7 @@ public:
         arivs::composition_b.clear();
 
     }
+    all_objects.push_back(this);
 }
 
 generic(string type,string text)
@@ -2291,6 +2304,10 @@ generic(string type,string text)
        // return "";
         }
 
+
+
+        all_objects.push_back(this);
+
 }
 
 generic(string type)
@@ -2314,6 +2331,8 @@ generic(string type)
         //return "";
         }
 
+        all_objects.push_back(this);
+
 }
 
 
@@ -2322,14 +2341,15 @@ generic(string type)
     {
         element.make_parent(this);
         children.push_back((generic*)&element);
+
     }
 
     void add_element(generic* element)
     {
         element->make_parent(this);
         children.push_back(element);
-    }
 
+    }
     generic* get_parent()
     {
         return parent;
@@ -2462,6 +2482,7 @@ generic(string type)
 		}
 
 
+
 };
 
 // THIS CLASS WAS WRITTEN BY ATMA
@@ -2513,7 +2534,7 @@ auto empty_lambda = [](){return as_tuple(arivs::nothing,arivs::nothing);};
 
 void composition_a();
 void composition_b();
-
+void style_the_objects();
 int main()
 {
 
@@ -2526,14 +2547,16 @@ int main()
 
     string list_type = _list({"Home","About","Contact"},"ul");
     generic first("div",[](){ blueprint_a(i("class","bolaji"),i("align","center"));
-    return as_tuple(arivs::composition_a,arivs::nothing,arivs::inline_style);
+    return as_tuple(arivs::composition_a,arivs::nothing,arivs::external_style);
     },"text here");
 
     generic second("span",empty_lambda,"text here");
 
     generic third("h",empty_lambda,"text here");
 
-    generic fourth("p", empty_lambda,"text here");
+    generic fourth("p",[](){ blueprint_a(i("class","dobo"),i("align","center"));
+    return as_tuple(arivs::composition_a,arivs::nothing,arivs::external_style);
+    },"text here");
 
     first.add_element(second);
     first.add_element(third);
@@ -2543,14 +2566,34 @@ int main()
 
     anchor_point.display();
 
-    cout << "fourth position: " << fourth.calculate_position() <<endl;
 
     read_to_html_at_once();
 
 
 }
 
+void style_the_objects()
+{
 
+
+    for(int i =0; i<all_objects.size(); i++)
+    {
+
+
+        if (all_objects[i]->mode_of_styling!="inline")
+        {
+
+        assert_mode_of_styling(all_objects[i]->mode_of_styling,all_objects[i]->name_of_tag,all_objects[i]->calculate_position(),
+                               all_objects[i]->type_of_tag);
+
+        }
+
+    }
+
+
+
+
+}
 type_tuple lambda_expression_manipulator(lambda p)
 {
 
@@ -2688,21 +2731,22 @@ auto expression_pack_manipulator(T&&... exp)
         return store_value;
 }
 
-void assert_mode_of_styling(string sty_typ, string name,string type_name)
+void assert_mode_of_styling(string sty_typ, string name,string position,string type_name)
 {
+
 
     if(sty_typ =="internal")
     {
           arivs::internal_stylesheet_manipulator += stylings(
 
-       stylesheet_internal(name,type_name),""
+       stylesheet_internal(name,position,type_name),""
 
                 );
 
     }
     if(sty_typ=="external")
     {
-        stylesheet_external(name,type_name);
+        stylesheet_external(name,position,type_name);
 
     }
 
@@ -2750,7 +2794,7 @@ string load_image(string img,string alt_value, string title, string identity,str
     return load_image;
 
 }
-string stylesheet_internal(string div_name,string type_name)
+string stylesheet_internal(string div_name,string pos,string type_name)
 {
     string stylesheet;
 
@@ -2776,20 +2820,12 @@ string stylesheet_internal(string div_name,string type_name)
 
         if(div_name==it->first)
         {
-
-
-            if (div_name == it->first and it->second == "class")
             {
 
-                stylesheet = "."+div_name+"{\n"+ styl+";\n}";
+                stylesheet = pos+"{\n"+ styl+";\n}";
 
             }
 
-            else if (div_name == it->first and it->second == "id")
-            {
-                stylesheet = "#"+div_name+"{\n"+ styl+";\n}";
-
-            }
 
         }
 
@@ -2809,7 +2845,7 @@ string stylesheet_internal(string div_name,string type_name)
     return stylesheet;
 
 }
-string stylesheet_external(string div_name,string type_name)
+string stylesheet_external(string div_name,string pos,string type_name)
 {
 
     string stylesheet;
@@ -2832,37 +2868,18 @@ string stylesheet_external(string div_name,string type_name)
 
     }
 
-    bool is_class_available;
-    bool is_id_available;
-
 
     for( it = details.begin(); it !=details.end();it++)
     {
 
         if(div_name==it->first)
         {
-            if(it->second=="class")
-            {
-                is_class_available=true;
-            }
-            else{
-                is_class_available=false;
-            }
 
-        }
-               if(div_name==it->first)
-        {
-            if(it->second=="id")
-            {
-                is_id_available=true;
-            }
-            else{
-                is_id_available=false;
-            }
+            stylesheet = pos+"{\n"+ styl+";\n}";
 
         }
 
-        if(div_name =="")
+        else if(div_name =="")
         {
 
              stylesheet =type_name+"{\n"+ styl+";\n}";
@@ -2873,20 +2890,8 @@ string stylesheet_external(string div_name,string type_name)
     }
 
 
-        if (is_class_available==true)
-        {
 
-            stylesheet = "."+div_name+"{\n"+ styl+";\n}";
-
-        }
-
-        if (is_id_available==true)
-        {
-            stylesheet = "#"+div_name+"{\n"+ styl+";\n}";
-
-        }
-
-        css_code_list_external.push_back(stylesheet);
+    css_code_list_external.push_back(stylesheet);
 
 
     style_used.clear();
@@ -3020,7 +3025,7 @@ inline string h_text(int h_level,lambda r, string text)
 {
      auto value = lambda_expression_manipulator(r);
 
-     assert_mode_of_styling(get<5>(value),get<4>(value));
+    // assert_mode_of_styling(get<5>(value),get<4>(value));
 
      get<0>(value) = get<1>(value)+quote+get<2>(value)+quote;
 
@@ -3037,7 +3042,7 @@ inline string h_text(int h_level,lambda r, string text,T&&... args )
 {
      auto value = lambda_expression_manipulator(r);
 
-     assert_mode_of_styling(get<5>(value),get<4>(value));
+     //assert_mode_of_styling(get<5>(value),get<4>(value));
 
      get<0>(value) = get<1>(value)+quote+get<2>(value)+quote;
 
@@ -3164,7 +3169,7 @@ inline string p_text(int p_level,lambda r, string text )
 {
      auto value = lambda_expression_manipulator(r);
 
-     assert_mode_of_styling(get<5>(value),get<4>(value));
+//     assert_mode_of_styling(get<5>(value),get<4>(value));
 
      get<0>(value) = get<1>(value)+quote+get<2>(value)+quote;
 
@@ -3181,7 +3186,7 @@ inline string p_text(int p_level,lambda r, string text,T&&... args )
 {
      auto value = lambda_expression_manipulator(r);
 
-     assert_mode_of_styling(get<5>(value),get<4>(value));
+  //   assert_mode_of_styling(get<5>(value),get<4>(value));
 
      get<0>(value) = get<1>(value)+quote+get<2>(value)+quote;
 
@@ -3215,6 +3220,7 @@ int get_file_size(string filename)
 // call this function at the end of the script in the main function
 void read_to_html_at_once()
 {
+    style_the_objects();
 
     body(total_text.str());
 
