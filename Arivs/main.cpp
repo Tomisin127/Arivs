@@ -510,7 +510,6 @@ string get_file_names(const string &key);
 
 string all_style;
 
-
 void construct_attributes(list<string> name,list<string>value)
 {
 
@@ -2336,20 +2335,50 @@ generic(string type)
 }
 
 
-
     void add_element(generic& element)
     {
         element.make_parent(this);
         children.push_back((generic*)&element);
 
+
+
     }
 
+
+    template<typename... T>
+    void add_element(generic& element, const T&...args)
+    {
+        element.make_parent(this);
+        children.push_back((generic*)&element);
+
+        generic temp;
+
+        for(auto &i:{args...})
+            {
+                generic *g = (generic*)&i;
+                g->make_parent(this);
+               children.insert(children.end(),(generic*)&i);
+            }
+
+    }
     void add_element(generic* element)
     {
         element->make_parent(this);
         children.push_back(element);
 
     }
+
+    /*
+    template<typename... T>
+    void add_element(generic* element, T&...args)
+    {
+        element->make_parent(this);
+        children.push_back(element);
+        children.push_back(args...);
+
+    }
+
+    */
     generic* get_parent()
     {
         return parent;
@@ -2430,6 +2459,7 @@ generic(string type)
 		void print_tag_start(generic* e, int depth,string inline_attrib)
 		{
 			print_spaces(depth);
+			cout << "called this print tag start"<<endl;
             total_text << "<" << e->type_t <<" " <<inline_attrib << ">";
 
 		}
@@ -2438,11 +2468,18 @@ generic(string type)
 
 		void print_children(generic* e, int depth)
 		 {
+		     if(e==NULL)
+                return;
+
 			for(generic* child : e->children)
                 {
+
 				total_text << endl;
-				display_recursive(child, depth + 1);
+
+                display_recursive(child, depth + 1);
+
                 }
+
 		}
 		void print_text(generic* e, int depth)
 		{
@@ -2465,6 +2502,7 @@ generic(string type)
 
 			if(e != NULL)
                 {
+                    cout << "in here"<<endl;
 
 				print_tag_start(e, depth,e->inline_attributes);
 
@@ -2473,6 +2511,10 @@ generic(string type)
 					print_text(e, depth);
 				}
 				print_tag_end(e, depth);
+			}
+
+			else{
+                cout <<"failed to display"<<endl;
 			}
 		}
 
@@ -2558,13 +2600,26 @@ int main()
     return as_tuple(arivs::composition_a,arivs::nothing,arivs::external_style);
     },"text here");
 
-    first.add_element(second);
-    first.add_element(third);
-    second.add_element(fourth);
+    first.add_element(second,third);
 
     anchor_point.root =&first;
 
     anchor_point.display();
+
+   /* anchor_point.root =&second;
+
+    anchor_point.display();
+
+    generic fifth("img",[](){return as_tuple(arivs::nothing,arivs::nothing,arivs::external_style);},"write here");
+
+    anchor_point.root =&fifth;
+
+    anchor_point.display();
+
+
+    */
+
+
 
 
     read_to_html_at_once();
