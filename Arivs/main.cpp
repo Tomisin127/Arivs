@@ -488,7 +488,7 @@ string stylesheet_internal(string div_name,string pos,string type_name="");
 
 string stylesheet_external(string div_name,string pos,string type_name="");
 //string stylesheet_external(string div_name,string selector);
-string stylesheet_external(string selector,string a,string b);
+//string stylesheet_external(string selector,string a,string b);
 
 void read_to_file(string read);
 void read_to_css_file(string item);
@@ -2164,25 +2164,25 @@ void construct_attributes(list<string> name,list<string>value)
             if(*a=="" || *b=="")
             {
                 cout << "\n\n ---WARNING: a pair part of your blueprint is empty!!\n This may cause unusual behaviour" <<endl;
-                break;
+             //   break;
             }
 
             if(*a=="" || *b!="")
             {
                 cout << "\n\n ---WARNING: You did not specify the first pair part of your blueprint_b!!\n This may cause unusual behaviour" <<endl;
-                break;
+               // break;
             }
 
             if(*a!="" || *b=="")
             {
                 cout << "\n\n ---WARNING: You did not specify the second pair part of your blueprint_b!!\n This may cause unusual behaviour" <<endl;
-                break;
+                //break;
             }
 
             if(*a=="" || *b!="")
             {
                 cout << "\n\n ---WARNING: You did not specify the first pair part of your blueprint_b!!\n This may cause unusual behaviour" <<endl;
-                break;
+                //break;
             }
 
             if(!boost::algorithm::contains(all_style,*a))
@@ -2190,7 +2190,7 @@ void construct_attributes(list<string> name,list<string>value)
             {
 
                  cout << "\n\n ---ERROR: The style '"<< *a <<"' you entered in blueprint_b is not a valid CSS style" <<endl;
-                 break;
+                 //break;
             }
 
         }
@@ -2225,13 +2225,6 @@ public:
 
 
     string inline_attributes;
-
-    generic()
-    {
-
-
-
-    }
 
 
  generic(string type, lambda h,string text)
@@ -2346,18 +2339,21 @@ generic(string type)
 
 
     template<typename... T>
-    void add_element(generic& element, const T&...args)
+    void add_element(generic& element, T&...args)
     {
         element.make_parent(this);
         children.push_back((generic*)&element);
 
-        generic temp;
-
         for(auto &i:{args...})
             {
                 generic *g = (generic*)&i;
-                g->make_parent(this);
-               children.insert(children.end(),(generic*)&i);
+                g->make_parent();
+               children.push_back(g);
+            }
+
+            //for(auto &get_child :children)
+            {
+            //    cout <<"type returned: "<< get_child->type_return()<<endl;
             }
 
     }
@@ -2386,6 +2382,11 @@ generic(string type)
     void make_parent(generic* parent)
     {
         this->parent = parent;
+    }
+
+    void make_parent()
+    {
+        this->parent = this;
     }
 
     int get_child_index(generic* element)
@@ -2425,21 +2426,42 @@ generic(string type)
     	{
             if(e->parent)
                 {
-
                 int location = e->parent->get_child_index(e);
 
                 if(location == -1)
                     {
-                        path.push_back(e->type_t);
+                        if(name_of_tag=="")
+                        {
+                            path.push_back(e->type_t);
+                        }
+
+                        else
+                        {
+                            path.push_back(sort_simple_css_arrangement());
+                        }
                     }
                     else
 						{
-							path.push_back(e->type_t+ ":nth-child(" + to_string(location + 1) + ")");
+						    if(name_of_tag!="")
+                            {
+                                path.push_back(sort_complex_css_arrangement(location));
+							}
+                            else
+                            {
+                                path.push_back(e->type_t+ ":nth-child(" + to_string(location + 1) + ")");
+                            }
 						}
 					}
 					else
                         {
-                            path.push_back(e->type_t);
+                            if(name_of_tag=="")
+                            {
+                                path.push_back(e->type_t);
+                            }
+                            else
+                            {
+                                path.push_back(sort_simple_css_arrangement());
+                            }
                         }
 
 				if(e->parent)
@@ -2456,11 +2478,57 @@ generic(string type)
 			}
 		}
 
+		string sort_simple_css_arrangement()
+		{
+		    string text;
+
+		    auto itr= details.find(name_of_tag);
+            if( (itr->first== name_of_tag) && itr->second == "class")
+            {
+                text ="."+name_of_tag;
+
+            }
+            else if((itr->first== name_of_tag) && itr->second == "id")
+            {
+                text= "#"+name_of_tag;
+
+
+            }
+
+            return text;
+		}
+
+		string sort_complex_css_arrangement(int locate)
+		{
+		    string text;
+
+		    auto itr= details.find(name_of_tag);
+
+            if( (itr->first== name_of_tag) && itr->second == "class")
+            {
+                text =("."+name_of_tag+ ":nth-child(" + to_string(locate + 1) + ")");
+
+            }
+            else if((itr->first== name_of_tag) && itr->second == "id")
+            {
+                text= ("#"+name_of_tag+ ":nth-child(" + to_string(locate + 1) + ")");
+
+            }
+
+            cout << "text: "<< text <<endl;
+
+            return text;
+		}
+
+
+
 		void print_tag_start(generic* e, int depth,string inline_attrib)
 		{
 			print_spaces(depth);
-			cout << "called this print tag start"<<endl;
+
             total_text << "<" << e->type_t <<" " <<inline_attrib << ">";
+
+            inline_attrib.clear();
 
 		}
 
@@ -2470,13 +2538,21 @@ generic(string type)
 		 {
 		     if(e==NULL)
                 return;
-
+            //int _count =0;
 			for(generic* child : e->children)
                 {
+
+               // cout << "print child in vector: "<< child->type_return() <<endl;
+
+
+                    //if(child ==NULL)
+                      //  cout << "BOOM FAILED,ERROR AT POSITION : "<<(_count+1) <<endl;
 
 				total_text << endl;
 
                 display_recursive(child, depth + 1);
+
+             //_count +=1;
 
                 }
 
@@ -2502,7 +2578,7 @@ generic(string type)
 
 			if(e != NULL)
                 {
-                    cout << "in here"<<endl;
+
 
 				print_tag_start(e, depth,e->inline_attributes);
 
@@ -2588,8 +2664,10 @@ int main()
     set_file("html_demo.html","css_demo.css");
 
     string list_type = _list({"Home","About","Contact"},"ul");
+
     generic first("div",[](){ blueprint_a(i("class","bolaji"),i("align","center"));
-    return as_tuple(arivs::composition_a,arivs::nothing,arivs::external_style);
+    blueprint_b(i("width","900px"),i("height","200px"));
+    return as_tuple(arivs::composition_a,arivs::composition_b,arivs::external_style);
     },"text here");
 
     generic second("span",empty_lambda,"text here");
@@ -2597,10 +2675,11 @@ int main()
     generic third("h",empty_lambda,"text here");
 
     generic fourth("p",[](){ blueprint_a(i("class","dobo"),i("align","center"));
-    return as_tuple(arivs::composition_a,arivs::nothing,arivs::external_style);
+    blueprint_b(i("font_size","9px"),i("h","100px"));
+    return as_tuple(arivs::composition_a,arivs::composition_b,arivs::external_style);
     },"text here");
 
-    first.add_element(second,third);
+    //first.add_element(fourth);
 
     anchor_point.root =&first;
 
@@ -2641,6 +2720,8 @@ void style_the_objects()
         assert_mode_of_styling(all_objects[i]->mode_of_styling,all_objects[i]->name_of_tag,all_objects[i]->calculate_position(),
                                all_objects[i]->type_of_tag);
 
+
+
         }
 
     }
@@ -2677,6 +2758,7 @@ type_tuple lambda_expression_manipulator(lambda p)
         sty += *st;
 
     }
+
 
     vector<pair<string,string>>h;
 
@@ -2788,7 +2870,6 @@ auto expression_pack_manipulator(T&&... exp)
 
 void assert_mode_of_styling(string sty_typ, string name,string position,string type_name)
 {
-
 
     if(sty_typ =="internal")
     {
@@ -2924,6 +3005,7 @@ string stylesheet_external(string div_name,string pos,string type_name)
     }
 
 
+
     for( it = details.begin(); it !=details.end();it++)
     {
 
@@ -2950,6 +3032,7 @@ string stylesheet_external(string div_name,string pos,string type_name)
 
 
     style_used.clear();
+
 
     arivs::attribute.clear();
     arivs::composition_a.clear();
