@@ -362,9 +362,9 @@ struct style
 
 };
 
-using lambda = function<tuple<multimap<string,vector<pair<string,string>>>,multimap<string,vector<pair<string,string>>>,string>(void)>;
+class generic;
 
-vector<string> style_used;
+using lambda = function<tuple<multimap<string,vector<pair<string,string>>>,multimap<string,vector<pair<string,string>>>,string>(void)>;
 
 
 
@@ -451,13 +451,13 @@ inline string script(string text,T&&... args);
 
 using type_tuple = tuple<string,string,string,string,string,string>;
 
-type_tuple lambda_expression_manipulator(lambda p);
+type_tuple lambda_expression_manipulator(lambda p,generic* val);
 
 void automatic_nest_matcher(string main_name);
 
 auto initializer_list_manipulator(initializer_list<string> inserted_text);
 
-void assert_mode_of_styling(string sty_typ, string name,string position,string type_name="");
+void assert_mode_of_styling(string sty_typ, string name,string position,generic *invoke, string type_name="");
 
 template<typename... T>
 auto expression_pack_manipulator(T&&... exp);
@@ -484,9 +484,9 @@ string load_image(string img,string alt_value, string title, string identity, st
 
 string link_css(string type, string href, string rel, string media);
 
-string stylesheet_internal(string div_name,string pos,string type_name="");
+string stylesheet_internal(string div_name,string pos,generic *k,string type_name="");
 
-string stylesheet_external(string div_name,string pos,string type_name="");
+string stylesheet_external(string div_name,string pos,generic *k,string type_name="");
 //string stylesheet_external(string div_name,string selector);
 //string stylesheet_external(string selector,string a,string b);
 
@@ -510,7 +510,414 @@ string get_file_names(const string &key);
 
 string all_style;
 
-void construct_attributes(list<string> name,list<string>value)
+
+class generic;
+vector<generic*>all_objects;
+
+// THIS CLASS WAS WRITTEN BY ATMA
+
+stringstream total_text;
+
+class generic{
+private:
+    string txt;
+
+public:
+
+    string mode_of_styling;
+    string name_of_tag;
+    string type_of_tag;
+
+    vector<generic*>children;
+
+    generic *parent = NULL;
+
+    string output;
+
+    string type_t;
+
+    string inline_attributes;
+
+    vector<string> style_used;
+
+ generic(string type, lambda h,string text)
+{
+
+    type_t = type;
+
+    type_tuple value = lambda_expression_manipulator(h,this);
+
+    string all;
+
+    for(auto r : all_existing_tags_in_html)
+    {
+        all += r;
+    }
+
+    if(type!="" and boost::algorithm::contains(all, type))
+        {
+            txt = text;
+        }
+
+    else{
+            cout<< "----ERROR: " << type << " is not a valid HTML TAG" <<endl;
+            //return "";
+        }
+
+    mode_of_styling = get<5>(value);
+
+    name_of_tag = get<4>(value);
+
+    type_of_tag = type;
+
+
+    get<0>(value) = get<1>(value)+quote+get<2>(value)+quote;
+
+    inline_attributes = get<3>(value)+get<0>(value);
+
+    if(get<5>(value)=="inline")
+    {
+
+        arivs::attribute.clear();
+        arivs::composition_a.clear();
+        arivs::composition_b.clear();
+
+    }
+
+    all_objects.push_back(this);
+}
+
+generic(string type,string text)
+{
+
+    string type_t = type;
+
+    string all;
+
+    for(auto r : all_existing_tags_in_html)
+    {
+        all += r;
+    }
+
+    if(type!="" and boost::algorithm::contains(all, type))
+        {
+        txt = text;
+        }
+
+    else{
+            cout<< "----ERROR: " << type << " is not a valid HTML TAG" <<endl;
+       // return "";
+        }
+
+        all_objects.push_back(this);
+
+}
+
+generic(string type)
+{
+    type_t = type;
+
+    string all;
+
+    for(auto r : all_existing_tags_in_html)
+    {
+        all += r;
+    }
+
+    if(type!="" and boost::algorithm::contains(all, type))
+        {
+        txt = type;
+        }
+
+    else{
+            cout<< "----ERROR: " << type << " is not a valid HTML TAG" <<endl;
+        //return "";
+      }
+
+        all_objects.push_back(this);
+
+}
+
+
+    void add_element(generic& element)
+    {
+        element.make_parent(this);
+        children.push_back((generic*)&element);
+
+    }
+
+
+    template<typename... T>
+    void add_element(generic& element, T&...args)
+    {
+        element.make_parent(this);
+        children.push_back((generic*)&element);
+
+        for(auto &i:{args...})
+            {
+                generic *g = (generic*)&i;
+                g->make_parent();
+               children.push_back(g);
+            }
+
+            //for(auto &get_child :children)
+            {
+            //    cout <<"type returned: "<< get_child->type_return()<<endl;
+            }
+
+
+
+    }
+    void add_element(generic* element)
+    {
+        element->make_parent(this);
+        children.push_back(element);
+
+    }
+
+    /*
+    template<typename... T>
+    void add_element(generic* element, T&...args)
+    {
+        element->make_parent(this);
+        children.push_back(element);
+        children.push_back(args...);
+
+    }
+
+    */
+    generic* get_parent()
+    {
+        return parent;
+    }
+    void make_parent(generic* parent)
+    {
+        this->parent = parent;
+    }
+
+    void make_parent()
+    {
+        this->parent = this;
+    }
+
+    int get_child_index(generic* element)
+    {
+			int _count = 0;
+			for(generic* child : children)
+                {
+				if(child == element)
+				{
+					return _count;
+				}
+				++_count;
+			}
+			return -1;
+    }
+
+		string calculate_position()
+		 {
+			vector<string> path;
+			stringstream ss;
+
+			calculate_position_recursive(this, path);
+
+			int size = path.size();
+			for(int i = size - 1; i >= 0; --i)
+            {
+				ss << path[i];
+				if(i != 0)
+				 {
+					ss << " > ";
+				 }
+			}
+			return ss.str();
+		}
+
+    	void calculate_position_recursive(generic* e, vector<string>& path)
+    	{
+            if(e->parent)
+                {
+                int location = e->parent->get_child_index(e);
+
+                if(location == -1)
+                    {
+                        if(name_of_tag=="")
+                        {
+                            path.push_back(e->type_t);
+                        }
+
+                        else
+                        {
+                            path.push_back(sort_simple_css_arrangement());
+                        }
+                    }
+                    else
+						{
+						    if(name_of_tag!="")
+                            {
+                                path.push_back(sort_complex_css_arrangement(location));
+							}
+                            else
+                            {
+                                path.push_back(e->type_t+ ":nth-child(" + to_string(location + 1) + ")");
+                            }
+						}
+					}
+					else
+                        {
+                            if(name_of_tag=="")
+                            {
+                                path.push_back(e->type_t);
+                            }
+                            else
+                            {
+                                path.push_back(sort_simple_css_arrangement());
+                            }
+                        }
+
+				if(e->parent)
+                    {
+                        calculate_position_recursive(e->parent, path);
+                    }
+			}
+
+
+		void print_spaces(int depth)
+		 {
+			for(int i = 0; i < depth; ++i) {
+				total_text << "  ";
+			}
+		}
+
+		string sort_simple_css_arrangement()
+		{
+		    string text;
+
+		    auto itr= details.find(name_of_tag);
+            if( (itr->first== name_of_tag) && itr->second == "class")
+            {
+                text ="."+name_of_tag;
+
+            }
+            else if((itr->first== name_of_tag) && itr->second == "id")
+            {
+                text= "#"+name_of_tag;
+
+
+            }
+
+            return text;
+		}
+
+		string sort_complex_css_arrangement(int locate)
+		{
+		    string text;
+
+		    auto itr= details.find(name_of_tag);
+
+            if( (itr->first== name_of_tag) && itr->second == "class")
+            {
+                text =("."+name_of_tag+ ":nth-child(" + to_string(locate + 1) + ")");
+
+            }
+            else if((itr->first== name_of_tag) && itr->second == "id")
+            {
+                text= ("#"+name_of_tag+ ":nth-child(" + to_string(locate + 1) + ")");
+
+            }
+
+            cout << "text: "<< text <<endl;
+
+            return text;
+		}
+
+		void print_tag_start(generic* e, int depth)
+		{
+			print_spaces(depth);
+
+            total_text << "<" << e->type_t <<" " <<e->inline_attributes << ">";
+
+		}
+
+		void print_children(generic* e, int depth)
+		 {
+		     if(e==NULL)
+                return;
+            //int _count =0;
+			for(generic* child : e->children)
+                {
+
+               // cout << "print child in vector: "<< child->type_return() <<endl;
+
+
+                    //if(child ==NULL)
+                      //  cout << "BOOM FAILED,ERROR AT POSITION : "<<(_count+1) <<endl;
+
+				total_text << endl;
+
+                display_recursive(child, depth + 1);
+
+             //_count +=1;
+
+                }
+
+		}
+		void print_text(generic* e, int depth)
+		{
+			if(!e->txt.empty())
+                {
+				total_text << endl;
+				print_spaces(depth + 1);
+				total_text << e->txt;
+                }
+		}
+
+		void print_tag_end(generic* e, int depth)
+		{
+				print_spaces(depth);
+				total_text << "</" << e->type_t +">";
+		}
+
+		void display_recursive(generic* e, int depth)
+		{
+
+
+			if(e != NULL)
+                {
+                    print_tag_start(e, depth);
+
+				{
+					print_children(e, depth);
+					print_text(e, depth);
+				}
+				print_tag_end(e, depth);
+			}
+
+			else{
+                cout <<"failed to display"<<endl;
+			}
+		}
+
+		void display()
+		{
+            display_recursive(this,0);
+		}
+
+		void finalize()
+		{
+		        assert_mode_of_styling(this->mode_of_styling,this->name_of_tag,this->calculate_position(),this,
+                               this->type_of_tag);
+
+                               cout << "the mode of styling: "<< this->mode_of_styling <<endl;
+                               cout << "the name of tag: "<< this->name_of_tag <<endl;
+                               cout << "position: "<< this->calculate_position() <<endl;
+                               cout << "type of tag: "<< this->type_of_tag <<endl;
+		}
+
+};
+
+
+void construct_attributes(list<string> name,list<string>value,generic *point)
 {
 
     for(auto n :all_existing_style)
@@ -531,17 +938,17 @@ void construct_attributes(list<string> name,list<string>value)
 
                 s.align_content= *b;
                 string text = "align-content: "+s.align_content+";";
-                style_used.push_back(text);
+                (point->style_used).push_back(text);
             }
 
                 if(*a=="align_items" || *a=="ai")
             {
                 s.align_items= *b;
                 string text = "align-items: "+s.align_items+";";
-                style_used.push_back(text);
+                (point->style_used).push_back(text);
             }
 
-                    if(*a=="align_self" || *a =="as")
+               /*     if(*a=="align_self" || *a =="as")
             {
                 s.align_self= *b;
                 string text = "align-self: "+s.align_self+";";
@@ -2160,6 +2567,8 @@ void construct_attributes(list<string> name,list<string>value)
                 style_used.push_back(text);
             }
 
+            */
+
 
             if(*a=="" || *b=="")
             {
@@ -2197,411 +2606,8 @@ void construct_attributes(list<string> name,list<string>value)
 
 }
 
-// THIS CLASS WAS WRITTEN BY ATMA
 
-stringstream total_text;
 
-class generic;
-vector<generic*>all_objects;
-
-
-class generic{
-private:
-    string txt;
-
-public:
-
-    string mode_of_styling;
-    string name_of_tag;
-    string type_of_tag;
-
-    vector<generic*>children;
-    generic *parent = NULL;
-
-    string output;
-
-    string type_t;
-
-
-
-    string inline_attributes;
-
-
- generic(string type, lambda h,string text)
-{
-
-    type_t = type;
-
-    type_tuple value = lambda_expression_manipulator(h);
-
-    string all;
-
-    for(auto r : all_existing_tags_in_html)
-    {
-        all += r;
-    }
-
-    if(type!="" and boost::algorithm::contains(all, type))
-        {
-            txt = text;
-        }
-
-    else{
-            cout<< "----ERROR: " << type << " is not a valid HTML TAG" <<endl;
-            //return "";
-        }
-
-    mode_of_styling = get<5>(value);
-
-    name_of_tag = get<4>(value);
-
-    type_of_tag = type;
-
-
-    get<0>(value) = get<1>(value)+quote+get<2>(value)+quote;
-
-    inline_attributes = get<3>(value)+get<0>(value);
-
-
-    if(get<5>(value)=="inline")
-    {
-
-        arivs::attribute.clear();
-        arivs::composition_a.clear();
-        arivs::composition_b.clear();
-
-    }
-    all_objects.push_back(this);
-}
-
-generic(string type,string text)
-{
-
-    string type_t = type;
-
-    string all;
-
-    for(auto r : all_existing_tags_in_html)
-    {
-        all += r;
-    }
-
-    if(type!="" and boost::algorithm::contains(all, type))
-        {
-        txt = text;
-        }
-
-    else{
-            cout<< "----ERROR: " << type << " is not a valid HTML TAG" <<endl;
-       // return "";
-        }
-
-
-
-        all_objects.push_back(this);
-
-}
-
-generic(string type)
-{
-    type_t = type;
-
-    string all;
-
-    for(auto r : all_existing_tags_in_html)
-    {
-        all += r;
-    }
-
-    if(type!="" and boost::algorithm::contains(all, type))
-        {
-        txt = type;
-        }
-
-    else{
-            cout<< "----ERROR: " << type << " is not a valid HTML TAG" <<endl;
-        //return "";
-        }
-
-        all_objects.push_back(this);
-
-}
-
-
-    void add_element(generic& element)
-    {
-        element.make_parent(this);
-        children.push_back((generic*)&element);
-
-
-
-    }
-
-
-    template<typename... T>
-    void add_element(generic& element, T&...args)
-    {
-        element.make_parent(this);
-        children.push_back((generic*)&element);
-
-        for(auto &i:{args...})
-            {
-                generic *g = (generic*)&i;
-                g->make_parent();
-               children.push_back(g);
-            }
-
-            //for(auto &get_child :children)
-            {
-            //    cout <<"type returned: "<< get_child->type_return()<<endl;
-            }
-
-    }
-    void add_element(generic* element)
-    {
-        element->make_parent(this);
-        children.push_back(element);
-
-    }
-
-    /*
-    template<typename... T>
-    void add_element(generic* element, T&...args)
-    {
-        element->make_parent(this);
-        children.push_back(element);
-        children.push_back(args...);
-
-    }
-
-    */
-    generic* get_parent()
-    {
-        return parent;
-    }
-    void make_parent(generic* parent)
-    {
-        this->parent = parent;
-    }
-
-    void make_parent()
-    {
-        this->parent = this;
-    }
-
-    int get_child_index(generic* element)
-    {
-			int _count = 0;
-			for(generic* child : children)
-                {
-				if(child == element)
-				{
-					return _count;
-				}
-				++_count;
-			}
-			return -1;
-    }
-
-		string calculate_position()
-		 {
-			vector<string> path;
-			stringstream ss;
-
-			calculate_position_recursive(this, path);
-
-			int size = path.size();
-			for(int i = size - 1; i >= 0; --i)
-            {
-				ss << path[i];
-				if(i != 0)
-				 {
-					ss << " > ";
-				 }
-			}
-			return ss.str();
-		}
-
-    	void calculate_position_recursive(generic* e, vector<string>& path)
-    	{
-            if(e->parent)
-                {
-                int location = e->parent->get_child_index(e);
-
-                if(location == -1)
-                    {
-                        if(name_of_tag=="")
-                        {
-                            path.push_back(e->type_t);
-                        }
-
-                        else
-                        {
-                            path.push_back(sort_simple_css_arrangement());
-                        }
-                    }
-                    else
-						{
-						    if(name_of_tag!="")
-                            {
-                                path.push_back(sort_complex_css_arrangement(location));
-							}
-                            else
-                            {
-                                path.push_back(e->type_t+ ":nth-child(" + to_string(location + 1) + ")");
-                            }
-						}
-					}
-					else
-                        {
-                            if(name_of_tag=="")
-                            {
-                                path.push_back(e->type_t);
-                            }
-                            else
-                            {
-                                path.push_back(sort_simple_css_arrangement());
-                            }
-                        }
-
-				if(e->parent)
-                    {
-                        calculate_position_recursive(e->parent, path);
-                    }
-			}
-
-
-		void print_spaces(int depth)
-		 {
-			for(int i = 0; i < depth; ++i) {
-				total_text << "  ";
-			}
-		}
-
-		string sort_simple_css_arrangement()
-		{
-		    string text;
-
-		    auto itr= details.find(name_of_tag);
-            if( (itr->first== name_of_tag) && itr->second == "class")
-            {
-                text ="."+name_of_tag;
-
-            }
-            else if((itr->first== name_of_tag) && itr->second == "id")
-            {
-                text= "#"+name_of_tag;
-
-
-            }
-
-            return text;
-		}
-
-		string sort_complex_css_arrangement(int locate)
-		{
-		    string text;
-
-		    auto itr= details.find(name_of_tag);
-
-            if( (itr->first== name_of_tag) && itr->second == "class")
-            {
-                text =("."+name_of_tag+ ":nth-child(" + to_string(locate + 1) + ")");
-
-            }
-            else if((itr->first== name_of_tag) && itr->second == "id")
-            {
-                text= ("#"+name_of_tag+ ":nth-child(" + to_string(locate + 1) + ")");
-
-            }
-
-            cout << "text: "<< text <<endl;
-
-            return text;
-		}
-
-
-
-		void print_tag_start(generic* e, int depth,string inline_attrib)
-		{
-			print_spaces(depth);
-
-            total_text << "<" << e->type_t <<" " <<inline_attrib << ">";
-
-            inline_attrib.clear();
-
-		}
-
-
-
-		void print_children(generic* e, int depth)
-		 {
-		     if(e==NULL)
-                return;
-            //int _count =0;
-			for(generic* child : e->children)
-                {
-
-               // cout << "print child in vector: "<< child->type_return() <<endl;
-
-
-                    //if(child ==NULL)
-                      //  cout << "BOOM FAILED,ERROR AT POSITION : "<<(_count+1) <<endl;
-
-				total_text << endl;
-
-                display_recursive(child, depth + 1);
-
-             //_count +=1;
-
-                }
-
-		}
-		void print_text(generic* e, int depth)
-		{
-			if(!e->txt.empty())
-                {
-				total_text << endl;
-				print_spaces(depth + 1);
-				total_text << e->txt;
-                }
-		}
-
-		void print_tag_end(generic* e, int depth)
-		{
-				print_spaces(depth);
-				total_text << "</" << e->type_t +">";
-		}
-
-		void display_recursive(generic* e, int depth)
-		{
-
-			if(e != NULL)
-                {
-
-
-				print_tag_start(e, depth,e->inline_attributes);
-
-				{
-					print_children(e, depth);
-					print_text(e, depth);
-				}
-				print_tag_end(e, depth);
-			}
-
-			else{
-                cout <<"failed to display"<<endl;
-			}
-		}
-
-		void display()
-		{
-            display_recursive(this,0);
-		}
-
-
-
-};
 
 // THIS CLASS WAS WRITTEN BY ATMA
 class exterior {
@@ -2665,21 +2671,24 @@ int main()
 
     string list_type = _list({"Home","About","Contact"},"ul");
 
-    generic first("div",[](){ blueprint_a(i("class","bolaji"),i("align","center"));
-    blueprint_b(i("width","900px"),i("height","200px"));
-    return as_tuple(arivs::composition_a,arivs::composition_b,arivs::external_style);
+    generic first("div",[](){ blueprint_a(i("class","A"));
+    blueprint_b(i("width","900px"),i("height","200px"),i("ac","paul"),i("ac","raimi"));
+    return as_tuple(arivs::composition_a,arivs::composition_b,arivs::internal_style);
     },"text here");
 
     generic second("span",empty_lambda,"text here");
 
     generic third("h",empty_lambda,"text here");
 
-    generic fourth("p",[](){ blueprint_a(i("class","dobo"),i("align","center"));
-    blueprint_b(i("font_size","9px"),i("h","100px"));
+    generic fourth("p",[](){ blueprint_a(i("class","B"));
+    blueprint_b(i("font_size","9px"),i("h","100px"),i("ai","center"),i("ai","tomi"));
     return as_tuple(arivs::composition_a,arivs::composition_b,arivs::external_style);
     },"text here");
 
-    //first.add_element(fourth);
+    first.add_element(fourth);
+
+    first.finalize();
+    fourth.finalize();
 
     anchor_point.root =&first;
 
@@ -2698,9 +2707,6 @@ int main()
 
     */
 
-
-
-
     read_to_html_at_once();
 
 
@@ -2709,33 +2715,25 @@ int main()
 void style_the_objects()
 {
 
-
     for(int i =0; i<all_objects.size(); i++)
     {
-
-
         if (all_objects[i]->mode_of_styling!="inline")
         {
 
-        assert_mode_of_styling(all_objects[i]->mode_of_styling,all_objects[i]->name_of_tag,all_objects[i]->calculate_position(),
-                               all_objects[i]->type_of_tag);
-
-
+     //   assert_mode_of_styling(all_objects[i]->mode_of_styling,all_objects[i]->name_of_tag,all_objects[i]->calculate_position(),
+       //                        all_objects[i]->type_of_tag);
 
         }
-
     }
 
-
-
-
 }
-type_tuple lambda_expression_manipulator(lambda p)
+type_tuple lambda_expression_manipulator(lambda p,generic* val)
 {
+    lambda local = p;
 
-    auto first_multimap = get<0>(p());
-    auto second_multimap = get<1>(p());
-    auto third_param = get<2>(p());
+    auto first_multimap = get<0>(local());
+    auto second_multimap = get<1>(local());
+    auto third_param = get<2>(local());
 
     string labels,l_cummulative="";
     string stylings,s_cummulative="";
@@ -2752,13 +2750,6 @@ type_tuple lambda_expression_manipulator(lambda p)
     vector<pair<string,string>>::iterator pv;
 
     list<string>temp1,temp2;
-
-    for(auto st = style_used.begin(); st!=style_used.end(); st++)
-    {
-        sty += *st;
-
-    }
-
 
     vector<pair<string,string>>h;
 
@@ -2845,11 +2836,25 @@ type_tuple lambda_expression_manipulator(lambda p)
 
         }
 
-            construct_attributes(temp1,temp2);
+            construct_attributes(temp1,temp2,val);
+
+            for(auto st = (val->style_used).begin(); st!=(val->style_used).end(); st++)
+            {
+                sty += *st;
+            }
 
              s_cummulative+=sty;
 
              style_type = third_param;
+
+        if (style_type=="inline")
+            {
+                (val->style_used).clear();
+            }
+
+    arivs::attribute.clear();
+    arivs::composition_a.clear();
+    arivs::composition_b.clear();
 
 
     return make_tuple(construct,referal,s_cummulative,l_cummulative,class_name,style_type);
@@ -2868,21 +2873,21 @@ auto expression_pack_manipulator(T&&... exp)
         return store_value;
 }
 
-void assert_mode_of_styling(string sty_typ, string name,string position,string type_name)
+void assert_mode_of_styling(string sty_typ, string name,string position,generic *invoke,string type_name)
 {
 
     if(sty_typ =="internal")
     {
           arivs::internal_stylesheet_manipulator += stylings(
 
-       stylesheet_internal(name,position,type_name),""
+       stylesheet_internal(name,position,invoke,type_name),""
 
                 );
 
     }
     if(sty_typ=="external")
     {
-        stylesheet_external(name,position,type_name);
+        stylesheet_external(name,position,invoke,type_name);
 
     }
 
@@ -2930,7 +2935,7 @@ string load_image(string img,string alt_value, string title, string identity,str
     return load_image;
 
 }
-string stylesheet_internal(string div_name,string pos,string type_name)
+string stylesheet_internal(string div_name,string pos,generic *k,string type_name)
 {
     string stylesheet;
 
@@ -2940,11 +2945,12 @@ string stylesheet_internal(string div_name,string pos,string type_name)
 
     string all;
 
-    for(auto sty:style_used)
+    for(auto sty:(k->style_used))
     {
         styl+=sty;
 
     }
+    cout << "styl_internal: "<<styl<<endl;
 
     for(auto n: all_existing_tags_in_html)
     {
@@ -2973,7 +2979,8 @@ string stylesheet_internal(string div_name,string pos,string type_name)
 
     }
 
-    style_used.clear();
+    (k->style_used).clear();
+
     arivs::attribute.clear();
     arivs::composition_a.clear();
     arivs::composition_b.clear();
@@ -2981,7 +2988,7 @@ string stylesheet_internal(string div_name,string pos,string type_name)
     return stylesheet;
 
 }
-string stylesheet_external(string div_name,string pos,string type_name)
+string stylesheet_external(string div_name,string pos,generic *k,string type_name)
 {
 
     string stylesheet;
@@ -2997,12 +3004,14 @@ string stylesheet_external(string div_name,string pos,string type_name)
         all+= n;
     }
 
-    for(auto sty:style_used)
+    for(auto sty:(k->style_used))
     {
 
         styl+=sty;
 
     }
+
+    cout << "styl: "<<styl<<endl;
 
 
 
@@ -3031,8 +3040,7 @@ string stylesheet_external(string div_name,string pos,string type_name)
     css_code_list_external.push_back(stylesheet);
 
 
-    style_used.clear();
-
+    (k->style_used).clear();
 
     arivs::attribute.clear();
     arivs::composition_a.clear();
@@ -3161,36 +3169,36 @@ inline string h_text(int h_level, string text)
 
 inline string h_text(int h_level,lambda r, string text)
 {
-     auto value = lambda_expression_manipulator(r);
+//     auto value = lambda_expression_manipulator(r);
 
     // assert_mode_of_styling(get<5>(value),get<4>(value));
 
-     get<0>(value) = get<1>(value)+quote+get<2>(value)+quote;
+  //   get<0>(value) = get<1>(value)+quote+get<2>(value)+quote;
 
-     string h;
+     //string h;
 
-     h = "<h"+ to_string(h_level)+" "+ get<3>(value)+get<0>(value)+">" +text +"</h"+to_string(h_level)+">";
+    // h = "<h"+ to_string(h_level)+" "+ get<3>(value)+get<0>(value)+">" +text +"</h"+to_string(h_level)+">";
 
-     return h;
+     //return h;
 
 }
 
 template<typename... T>
 inline string h_text(int h_level,lambda r, string text,T&&... args )
 {
-     auto value = lambda_expression_manipulator(r);
+     //auto value = lambda_expression_manipulator(r);
 
      //assert_mode_of_styling(get<5>(value),get<4>(value));
 
-     get<0>(value) = get<1>(value)+quote+get<2>(value)+quote;
+     //get<0>(value) = get<1>(value)+quote+get<2>(value)+quote;
 
-     auto other_text = expression_pack_manipulator(args...);
+     //auto other_text = expression_pack_manipulator(args...);
 
-     string h;
+     //string h;
 
-     h = "<h"+ to_string(h_level)+" "+ get<3>(value)+get<0>(value)+">" +text+other_text +"</h"+to_string(h_level)+">";
+     //h = "<h"+ to_string(h_level)+" "+ get<3>(value)+get<0>(value)+">" +text+other_text +"</h"+to_string(h_level)+">";
 
-     return h;
+    // return h;
 
 }
 
@@ -3305,36 +3313,36 @@ inline string p_text(int p_level, string text)
 
 inline string p_text(int p_level,lambda r, string text )
 {
-     auto value = lambda_expression_manipulator(r);
+//     auto value = lambda_expression_manipulator(r);
 
 //     assert_mode_of_styling(get<5>(value),get<4>(value));
 
-     get<0>(value) = get<1>(value)+quote+get<2>(value)+quote;
+  //   get<0>(value) = get<1>(value)+quote+get<2>(value)+quote;
 
-     string h;
+    // string h;
 
-     h = "<p"+ to_string(p_level)+" "+ get<3>(value)+get<0>(value)+">" +text+"</p"+to_string(p_level)+">";
+     //h = "<p"+ to_string(p_level)+" "+ get<3>(value)+get<0>(value)+">" +text+"</p"+to_string(p_level)+">";
 
-     return h;
+     //return h;
 
 }
 
 template<typename... T>
 inline string p_text(int p_level,lambda r, string text,T&&... args )
 {
-     auto value = lambda_expression_manipulator(r);
+     //auto value = lambda_expression_manipulator(r);
 
   //   assert_mode_of_styling(get<5>(value),get<4>(value));
 
-     get<0>(value) = get<1>(value)+quote+get<2>(value)+quote;
+    // get<0>(value) = get<1>(value)+quote+get<2>(value)+quote;
 
-     auto other_text = expression_pack_manipulator(args...);
+    // auto other_text = expression_pack_manipulator(args...);
 
-     string h;
+     //string h;
 
-     h = "<p"+ to_string(p_level)+" "+ get<3>(value)+get<0>(value)+">" +text+other_text +"</p"+to_string(p_level)+">";
+     //h = "<p"+ to_string(p_level)+" "+ get<3>(value)+get<0>(value)+">" +text+other_text +"</p"+to_string(p_level)+">";
 
-     return h;
+     //return h;
 
 }
 
@@ -3358,7 +3366,7 @@ int get_file_size(string filename)
 // call this function at the end of the script in the main function
 void read_to_html_at_once()
 {
-    style_the_objects();
+   // style_the_objects();
 
     body(total_text.str());
 
@@ -3447,7 +3455,6 @@ string get_file_names(const string &key)
 
 void composition_a()
 {
-
     arivs::composition_a.insert(pair<string,decltype(arivs::attribute)>("",arivs::attribute));
 }
 
