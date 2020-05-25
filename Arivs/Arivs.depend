@@ -1,5 +1,5 @@
 # depslib dependency file v1.0
-1275099263 source:c:\users\object\desktop\useful_junks\ads_page\arivs\arivs\main.cpp
+1590482021 source:c:\users\object\desktop\arivs\main.cpp
 	<iostream>
 	<cstdlib>
 	<fstream>
@@ -12,12 +12,27 @@
 	"boost/filesystem.hpp"
 	<filesystem/include/ghc/filesystem.hpp>
 	<boost/algorithm/string.hpp>
-	<boost/proto/proto.hpp>
-	<boost/proto/context/null.hpp>
-	<boost/proto/context.hpp>
-	<boost/proto/context/default.hpp>
-	<boost/proto/eval.hpp>
-	<boost/typeof/std/ostream.hpp>
 	<tuple>
 	<functional>
+	<sstream>
+	"tag_n_style.h"
+	"function_prototype.h"
+	"the_classes.h"
+	"function_define.h"
+
+1590480345 c:\users\object\desktop\arivs\includes\tag_n_style.h
+
+1590480815 c:\users\object\desktop\arivs\includes\function_prototype.h
+
+1590480924 c:\users\object\desktop\arivs\includes\the_classes.h
+
+1590480941 c:\users\object\desktop\arivs\includes\function_define.h
+
+1590480345 c:\users\object\desktop\arivs\tag_n_style.h
+
+1590480815 c:\users\object\desktop\arivs\function_prototype.h
+
+1590480924 c:\users\object\desktop\arivs\the_classes.h
+
+1590482139 c:\users\object\desktop\arivs\function_define.h
 

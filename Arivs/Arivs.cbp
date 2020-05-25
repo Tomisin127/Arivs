@@ -32,6 +32,11 @@
 			<Add option="-Wall" />
 			<Add option="-fexceptions" />
 		</Compiler>
+		<Unit filename="includes/function_define.h" />
+		<Unit filename="includes/function_prototype.h" />
+		<Unit filename="includes/tag_n_style.cpp" />
+		<Unit filename="includes/tag_n_style.h" />
+		<Unit filename="includes/the_classes.h" />
 		<Unit filename="main.cpp" />
 		<Extensions>
 			<code_completion />
