@@ -11,22 +11,17 @@
 #include <list>
 using namespace std;
 #include <cstring>
-#include <variant>
-#include "boost/filesystem.hpp"
 #include <filesystem/include/ghc/filesystem.hpp>
 #include <boost/algorithm/string.hpp>
 #include <tuple>
 #include <functional>
 #include <sstream>
 
-boost::filesystem::fstream html_object;
-boost::filesystem::fstream css_object;
-
+fstream html_object;
+fstream css_object;
 
 string quote = "\"";
 string q = "\"";
-
-string store_structure_name;
 
 struct color_type
 {
@@ -342,10 +337,7 @@ struct style
 };
 
 
-
 using lambda = function<tuple<multimap<string,vector<pair<string,string>>>,multimap<string,vector<pair<string,string>>>,string>(void)>;
-
-
 
 vector<string>all_existing_tags_in_html={"header","nav","h1","h2","h3","h4","h5","h6","ul","ol","title","base","bdi","button","center","a","abbr","acronym","address","applet","area",
 "audio","b","body","basefont","bdo","br","bdo","blockquote","canvas","caption","cite","code","col","colgroup","data","datalist","dd","del","details","dfn",
@@ -354,12 +346,6 @@ vector<string>all_existing_tags_in_html={"header","nav","h1","h2","h3","h4","h5"
 "output","p","param","picture","pre","progress","q","rp","rt","ruby","s","samp","script","section","select","small","source","span","strike","strong","style","sub",
 "summary","sup","svg","table","tbody","td","template","textarea","tfoot","th","thead","time","title","tr","track","tt","u","video","wbr"
 };
-
-ostream &operator<<(ostream &os, style &c)
-{
-    os << c <<endl;
-    return os;
-}
 
 namespace arivs{
 

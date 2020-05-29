@@ -1,21 +1,6 @@
 #ifndef FUNCTION_DEFINE_H
 #define FUNCTION_DEFINE_H
 
-/*void style_the_objects()
-{
-
-    for(int i =0; i<all_objects.size(); i++)
-    {
-        if (all_objects[i]->mode_of_styling!="inline")
-        {
-
-     //   assert_mode_of_styling(all_objects[i]->mode_of_styling,all_objects[i]->name_of_tag,all_objects[i]->calculate_position(),
-       //                        all_objects[i]->type_of_tag);
-
-        }
-    }
-
-}*/
 type_tuple lambda_expression_manipulator(lambda p,generic* val)
 {
     lambda local = p;
@@ -67,6 +52,8 @@ type_tuple lambda_expression_manipulator(lambda p,generic* val)
 
                 details.insert(pair<string,string>(vm->second,vm->first));
 
+                (val->all_classes).push_back(class_name);
+
             }
 
             else if(vm->first=="id")
@@ -74,6 +61,8 @@ type_tuple lambda_expression_manipulator(lambda p,generic* val)
                 class_name = vm->second;
 
                 details.insert(pair<string,string>(vm->second,vm->first));
+
+                (val->all_id).push_back(class_name);
             }
 
             else if(boost::algorithm::contains(all,vm->first))
@@ -149,50 +138,26 @@ type_tuple lambda_expression_manipulator(lambda p,generic* val)
     return make_tuple(construct,referal,s_cummulative,l_cummulative,class_name,style_type);
 }
 
-
-template<typename... T>
-auto expression_pack_manipulator(T&&... exp)
-{
-    auto get_value = {exp...};
-    string store_value;
-    for(auto t : get_value)
-        {
-            store_value+=t;
-        }
-        return store_value;
-}
-
-void assert_mode_of_styling(string sty_typ, string name,string position,generic *invoke,string type_name)
+void assert_mode_of_styling(string sty_typ, string name,generic *invoke,string type_name)
 {
 
     if(sty_typ =="internal")
     {
           arivs::internal_stylesheet_manipulator += stylings(
 
-       stylesheet_internal(name,position,invoke,type_name),""
+       stylesheet_internal(name,invoke,type_name)
 
                 );
 
     }
     if(sty_typ=="external")
     {
-        stylesheet_external(name,position,invoke,type_name);
+        stylesheet_external(name,invoke,type_name);
 
     }
 
 }
 
-auto initializer_list_manipulator(initializer_list<string> inserted_text)
-{
-    string txt;
-
-    for(auto i=inserted_text.begin(); i!=inserted_text.end();i++)
-    {
-        txt += *i;
-
-    }
-    return txt;
-}
 
 template<typename T, typename... Args>
 void blueprint_a(T&& arg,Args&&...optional)
@@ -224,13 +189,15 @@ string load_image(string img,string alt_value, string title, string identity,str
     return load_image;
 
 }
-string stylesheet_internal(string div_name,string pos,generic *k,string type_name)
+string stylesheet_internal(string div_name,generic *k,string type_name)
 {
     string stylesheet;
 
     map<string,string>::iterator it;
 
     string styl;
+
+    string pos = k->calculate_position();
 
     string all;
 
@@ -239,7 +206,6 @@ string stylesheet_internal(string div_name,string pos,generic *k,string type_nam
         styl+=sty;
 
     }
-    cout << "styl_internal: "<<styl<<endl;
 
     for(auto n: all_existing_tags_in_html)
     {
@@ -252,21 +218,17 @@ string stylesheet_internal(string div_name,string pos,generic *k,string type_nam
         if(div_name==it->first)
         {
             {
-
                 stylesheet = pos+"{\n"+ styl+";\n}";
-
             }
-
-
         }
 
-        else if(div_name=="")
+    }
+
+    if(div_name=="")
         {
             cout << "\n\n---WARNING: class or id not specified\n using '"<<type_name<< "' as structure identifier!!" <<endl;
             stylesheet =type_name+"{\n"+ styl+";\n}";
         }
-
-    }
 
     (k->style_used).clear();
 
@@ -277,7 +239,7 @@ string stylesheet_internal(string div_name,string pos,generic *k,string type_nam
     return stylesheet;
 
 }
-string stylesheet_external(string div_name,string pos,generic *k,string type_name)
+string stylesheet_external(string div_name,generic *k,string type_name)
 {
 
     string stylesheet;
@@ -285,6 +247,10 @@ string stylesheet_external(string div_name,string pos,generic *k,string type_nam
     map<string,string>::iterator it;
 
     string styl;
+
+    string pos = k->calculate_position();
+
+    cout << "pos: "<< pos <<endl;
 
     string all;
 
@@ -300,10 +266,6 @@ string stylesheet_external(string div_name,string pos,generic *k,string type_nam
 
     }
 
-    cout << "styl: "<<styl<<endl;
-
-
-
     for( it = details.begin(); it !=details.end();it++)
     {
 
@@ -314,17 +276,17 @@ string stylesheet_external(string div_name,string pos,generic *k,string type_nam
 
         }
 
-        else if(div_name =="")
-        {
-
-             stylesheet =type_name+"{\n"+ styl+";\n}";
-             cout << "\n\n---WARNING: class or id not specified\n using '"<<type_name<< "' as structure identifier!!" <<endl;
-
-        }
-
     }
 
 
+        if(div_name =="")
+        {
+
+             stylesheet =pos+"{\n"+ styl+";\n}";
+
+             cout << "\n\n---WARNING: class or id not specified\n using '"<<type_name<< "' as structure identifier!!" <<endl;
+
+        }
 
     css_code_list_external.push_back(stylesheet);
 
@@ -338,86 +300,6 @@ string stylesheet_external(string div_name,string pos,generic *k,string type_nam
     return stylesheet;
 
     }
-
-
-   /* string stylesheet_external(string div_name,string selector)
-{
-    automatic_nest_matcher(div_name);
-
-    string stylesheet;
-
-    map<string,string>::iterator it;
-
-    string styl;
-
-    string get_key;
-
-    string construct;
-    string first;
-    string second;
-
-    for(auto r : structural_tree)
-    {
-
-        if(div_name==r.first)
-            {
-             get_key = r.second;
-             break;
-            }
-
-    }
-
-
-
-    for(auto sty:style_used)
-    {
-        styl+=sty;
-    }
-
-
-    for( it = details.begin(); it !=details.end();it++)
-{
-    if(div_name==it->first)
-    {
-        if (it->second == "class")
-            {
-                first = "."+div_name;
-            }
-    }
-}
-for( it = details.begin(); it !=details.end();it++)
-{
-    if (get_key==it->first)
-    {
-        cout << "is in"<<endl;
-        if(it->second=="class")
-        {
-            second="."+get_key+selector;
-        }
-    }
-
-}
-
-    construct = second+first;
-
-    stylesheet = construct+"{\n"+ styl+";\n}";
-
-    css_code_list_external.push_back(stylesheet);
-
-    style_used.clear();
-
-    structural_tree.clear();
-
-     arivs::attribute.clear();
-    arivs::composition_a.clear();
-    arivs::composition_b.clear();
-
-    return stylesheet;
-
-}
-
-   */
-
 
 string link_css(string type, string href, string rel, string media)
 {
@@ -438,8 +320,6 @@ void read_to_file(string read)
 inline string body(string text)
 {
 
-    //auto other_text = expression_pack_manipulator(args...);
-
     string _start = "<body> "+text+"</body>";
 
     arivs::main_body_manipulator = _start;
@@ -447,49 +327,6 @@ inline string body(string text)
     return _start;
 
 }
-
-inline string h_text(int h_level, string text)
-{
-        string h;
-        h = "<h"+ to_string(h_level)+">" +text +"</h"+to_string(h_level)+">";
-        return h;
-
-}
-
-//inline string h_text(int h_level,lambda r, string text)
-//{
-//     auto value = lambda_expression_manipulator(r);
-
-    // assert_mode_of_styling(get<5>(value),get<4>(value));
-
-  //   get<0>(value) = get<1>(value)+quote+get<2>(value)+quote;
-
-     //string h;
-
-    // h = "<h"+ to_string(h_level)+" "+ get<3>(value)+get<0>(value)+">" +text +"</h"+to_string(h_level)+">";
-
-     //return h;
-
-//}
-
-//template<typename... T>
-//inline string h_text(int h_level,lambda r, string text,T&&... args )
-//{
-     //auto value = lambda_expression_manipulator(r);
-
-     //assert_mode_of_styling(get<5>(value),get<4>(value));
-
-     //get<0>(value) = get<1>(value)+quote+get<2>(value)+quote;
-
-     //auto other_text = expression_pack_manipulator(args...);
-
-     //string h;
-
-     //h = "<h"+ to_string(h_level)+" "+ get<3>(value)+get<0>(value)+">" +text+other_text +"</h"+to_string(h_level)+">";
-
-    // return h;
-
-//}
 
 inline string _list( list<string> ls, string specify)
 {
@@ -515,9 +352,6 @@ inline string _list( list<string> ls, string specify)
             _start = "<li>"+string(*it)+ "</li>";
             total +=_start;
 
-            //html_code_list.push_back(_start);
-
-
         }
         _start = "</"+specify+">";
         total+=_start;
@@ -528,14 +362,13 @@ inline string _list( list<string> ls, string specify)
         else if(specify=="")
         {
 
-            for(it = ls.begin(); it!= ls.end();it++)
-        {
+        for(it = ls.begin(); it!= ls.end();it++)
+            {
 
             string _start = "<li>"+string(*it)+ "</li>";
             total+=_start;
-           // html_code_list.push_back(_start);
 
-        }
+            }
 
         }
 
@@ -543,12 +376,10 @@ inline string _list( list<string> ls, string specify)
 
     return total;
 }
-
-template<typename... T>
-inline string stylings(string text,T&&... args)
+inline string stylings(string text)
 {
-    auto other_text = expression_pack_manipulator(args...);
-    string _start = "<style> "+text + other_text +"</style>";
+
+    string _start = "<style> "+text+"</style>";
     return _start;
 
 }
@@ -567,7 +398,7 @@ inline string script(string text, T&&...args)
     auto other_text = expression_pack_manipulator(args...);
 
     string _start = "<script>"+text+other_text+"</script>";
-    //html_code_list.push_back(_start);
+
     return _start;
 
 }
@@ -591,50 +422,6 @@ string hsl(int hue,int saturation, int lightness)
     string hsl_color = "hsl(" + to_string(hue) +"," +to_string(saturation) + "%," + to_string(lightness) +"%);";
     return hsl_color;
 }
-
-inline string p_text(int p_level, string text)
-{
-    string p = "<p"+to_string(p_level) +">" +text+"</p"+ to_string(p_level)+">";
-   // html_code_list.push_back(p);
-    return p;
-
-}
-
-//inline string p_text(int p_level,lambda r, string text )
-//{
-//     auto value = lambda_expression_manipulator(r);
-
-//     assert_mode_of_styling(get<5>(value),get<4>(value));
-
-  //   get<0>(value) = get<1>(value)+quote+get<2>(value)+quote;
-
-    // string h;
-
-     //h = "<p"+ to_string(p_level)+" "+ get<3>(value)+get<0>(value)+">" +text+"</p"+to_string(p_level)+">";
-
-     //return h;
-
-//}
-
-//template<typename... T>
-//inline string p_text(int p_level,lambda r, string text,T&&... args )
-//{
-     //auto value = lambda_expression_manipulator(r);
-
-  //   assert_mode_of_styling(get<5>(value),get<4>(value));
-
-    // get<0>(value) = get<1>(value)+quote+get<2>(value)+quote;
-
-    // auto other_text = expression_pack_manipulator(args...);
-
-     //string h;
-
-     //h = "<p"+ to_string(p_level)+" "+ get<3>(value)+get<0>(value)+">" +text+other_text +"</p"+to_string(p_level)+">";
-
-     //return h;
-
-//}
-
 
 void read_to_css_file(string item)
 {

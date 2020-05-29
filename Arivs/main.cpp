@@ -13,11 +13,7 @@ __DONATIONS AND SUPPORT__
 		USDT = 17JDDhpnvBPz3FEQsUxEyYEPtH6KVjVUZJ
 */
 
-#include "tag_n_style.h"
-#include "function_prototype.h"
-#include "the_classes.h"
-#include "function_define.h"
-
+#include "arivs.h"
 
 int main()
 {
@@ -25,32 +21,52 @@ int main()
 
     exterior anchor_point;
 
-    link_css("text/css", "ads.css","stylesheet", "");
+    link_css("text/css", "css_demo.css","stylesheet", "");
 
     set_file("html_demo.html","css_demo.css");
 
-    string list_type = _list({"Home","About","Contact"},"ul");
+    generic nav("nav",[](){
+            return as_tuple(arivs::nothing,arivs::nothing,arivs::inline_style);
+    },"");
 
-    generic first("div",[](){
-                  blueprint_a(i("class","A"));
-                  blueprint_b(i("ac","sample1"),i("ac","sample2"));
+    generic ul("ul",[](){
+                    blueprint_b(i("lst","none"),i("margin","-8px"),i("padding","0"),i("w","auto")
+                                ,i("overflow","hidden"),i("position","sticky"),i("bg_clr","#6218A7"));
 
-                  return as_tuple(arivs::composition_a,arivs::composition_b,arivs::internal_style);
-    },"text here");
+                    return as_tuple(arivs::nothing,arivs::composition_b,arivs::inline_style);
+    },"");
 
-    generic second("p",[](){
-                    blueprint_a(i("class","B"));
-                    blueprint_b(i("ai","sample3"),i("ai","sample4"));
+
+    generic li("li",[](){
+                    blueprint_b(i("float","left"),i("display","inline"));
+
+                    return as_tuple(arivs::nothing,arivs::composition_b,arivs::inline_style);
+    },"");
+
+
+    generic a("a",[](){
+                    blueprint_a(i("href","ads.html"));
+                    blueprint_b(i("display","block"),i("color","white"),i("padding","20px 16px"),i("text_align","center"),i("text_decoration","none"),i("font_family"," 'Segoe UI',Tahoma, Geneva,Verdana, sans-serif;"),
+                                i("transition","200ms ease-in-out"));
 
                     return as_tuple(arivs::composition_a,arivs::composition_b,arivs::external_style);
-    },"text here");
+    },"Home");
 
-    first.add_element(second);
 
-    first.finalize();
-    second.finalize();
+    nav.add_element(ul);
 
-    anchor_point.root =&first;
+    ul.add_element(li);
+
+    li.add_element(a);
+    li.add_element(a);
+    li.add_element(a);
+
+    nav.finalize();
+    ul.finalize();
+    li.finalize();
+    a.finalize();
+
+    anchor_point.root =&nav;
 
     anchor_point.display();
 
