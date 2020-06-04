@@ -1,17 +1,9 @@
 #ifndef FUNCTION_PROTOTYPE_H
 #define FUNCTION_PROTOTYPE_H
 
-template<typename... Args>
-void blueprint_a(Args&&... args){}
+void blueprint_a(vector<pair<string,string>>arg);
 
-template<typename T, typename... Args>
-void blueprint_a(T&& arg,Args&&...optional);
-
-template<typename... Args>
-void blueprint_b(Args&&... args){}
-
-template<typename T, typename... Args>
-void blueprint_b(T&& arg,Args&&...optional);
+void blueprint_b(vector<pair<string,string>>arg);
 
 inline string body(string text);
 

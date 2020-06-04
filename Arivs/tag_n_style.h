@@ -337,7 +337,7 @@ struct style
 };
 
 
-using lambda = function<tuple<multimap<string,vector<pair<string,string>>>,multimap<string,vector<pair<string,string>>>,string>(void)>;
+using lambda = function<tuple<multimap<string,vector<pair<string,string>>>,multimap<string,vector<pair<string,string>>>,string,vector<string>>(void)>;
 
 vector<string>all_existing_tags_in_html={"header","nav","h1","h2","h3","h4","h5","h6","ul","ol","title","base","bdi","button","center","a","abbr","acronym","address","applet","area",
 "audio","b","body","basefont","bdo","br","bdo","blockquote","canvas","caption","cite","code","col","colgroup","data","datalist","dd","del","details","dfn",

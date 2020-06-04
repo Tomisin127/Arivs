@@ -2,10 +2,14 @@
 #define THE_CLASSES_H
 
 class generic{
+
 private:
-    string txt;
 
 public:
+
+    string txt;
+
+    string inherit="";
 
     string mode_of_styling;
     string name_of_tag;
@@ -25,6 +29,14 @@ public:
 
     vector<string> all_classes;
     vector<string> all_id;
+
+    vector<string> sequence;
+
+
+    generic()
+    {
+
+    }
 
  generic(string type, lambda h,string text)
 {
@@ -56,9 +68,9 @@ public:
     type_of_tag = type;
 
 
-    get<0>(value) = get<1>(value)+quote+get<2>(value)+quote;
+    //get<0>(value) = get<1>(value)+quote+get<2>(value)+quote;
 
-    inline_attributes = get<3>(value)+get<0>(value);
+    inline_attributes = get<3>(value); //+get<0>(value);
 
     if(get<5>(value)=="inline")
     {
@@ -71,6 +83,9 @@ public:
 
     all_objects.push_back(this);
 }
+
+
+
 
 generic(string type,string text)
 {
@@ -129,7 +144,9 @@ generic(string type)
         children.push_back((generic*)&element);
 
 
+
     }
+
 
 
     template<typename... T>
@@ -144,7 +161,6 @@ generic(string type)
                 //g->make_parent();
                children.push_back(g);
             }
-
 
     }
     void add_element(generic* element)
@@ -199,15 +215,35 @@ generic(string type)
 
 			calculate_position_recursive(this, path);
 
+			auto get_sequence = this->sequence;
+
+            int _count;
+
 			int size = path.size();
+
 			for(int i = size - 1; i >= 0; --i)
             {
-                cout << "path: "<< path[i] <<endl;
-				ss << path[i];
-				if(i != 0)
-				 {
-					ss << " > ";
-				 }
+                //cout << "path: "<< path[i] <<endl;
+
+                ss << path[i];
+
+
+            if(i!=0)
+                {
+
+				 if(i<get_sequence.size())
+                    {
+
+                     ss<< get_sequence[_count];
+
+                     cout << "whats in count : "<< _count <<endl;
+
+                       _count+=1;
+
+                    }
+
+                }
+
 			}
 			return ss.str();
 		}
@@ -224,13 +260,27 @@ generic(string type)
                     {
                         if(e->name_of_tag=="")
                         {
-                            path.push_back(e->type_t);
+
+
+                            if(e->inherit!="")
+                                {
+                                    path.push_back(e->type_t+inherit);
+                                }
+
+                            else
+                                {
+                                path.push_back(e->type_t);
+                                }
                         }
+
                         else
                         {
                             path.push_back(sort_simple_css_arrangement(e));
                         }
+
                     }
+
+
                     else
 						{
 						    if(e->name_of_tag!="")
@@ -239,7 +289,16 @@ generic(string type)
 							}
                             else
                             {
-                                path.push_back(e->type_t+ ":nth-child(" + to_string(location + 1) + ")");
+
+                                  if(e->inherit!="")
+                                    {
+                                        path.push_back(e->type_t+ inherit);
+                                    }
+
+                                    else
+                                    {
+                                            path.push_back(e->type_t);//+ ":nth-child(" + to_string(location + 1) + ")");
+                                    }
                             }
 						}
 					}
@@ -277,11 +336,23 @@ generic(string type)
 		    for(auto &c :exp->all_classes)
             {
                 text.append("."+c);
+
+                if(exp->inherit!="")
+                {
+                    text.append("."+c+ inherit);
+
+                }
             }
 
             for(auto &id : exp->all_id)
             {
                 text.append("#"+id);
+
+                if(exp->inherit!="")
+                {
+                    text.append("#"+id+ inherit);
+
+                }
             }
 
             return text;
@@ -293,12 +364,24 @@ generic(string type)
 
             for(auto &c : exp->all_classes)
             {
-                text.append("."+c+ ":nth-child(" + to_string(locate + 1) + ")");
+                text.append("."+c);//+ ":nth-child(" + to_string(locate + 1) + ")");
+
+                if(exp->inherit!="")
+                {
+                    text.append("."+c+ inherit);
+
+                }
 
             }
             for(auto &id : exp->all_id)
             {
-                text.append("#"+id+ ":nth-child(" + to_string(locate + 1) + ")");
+                text.append("#"+id);//+ ":nth-child(" + to_string(locate + 1) + ")");
+
+                if(exp->inherit!="")
+                {
+                    text.append("#"+id+ inherit);
+
+                }
 
             }
 
@@ -2109,11 +2192,26 @@ string sty;
 
 using i = pair<string,string>;
 
+
 auto as_tuple(decltype(arivs::composition) a,decltype(arivs::composition) b,string style_type="")
 {
-    return make_tuple(a,b,style_type);
+    return make_tuple(a,b,style_type,NULL);
 
 }
+
+auto as_tuple(string style_type="")
+{
+    return make_tuple(arivs::composition_a,arivs::composition_b,style_type,NULL);
+
+}
+
+
+auto as_tuple(string style_type,const vector<string> &sequence)
+{
+    return make_tuple(arivs::composition_a,arivs::composition_b,style_type,sequence);
+
+}
+
 
 auto empty_lambda = [](){return as_tuple(arivs::nothing,arivs::nothing);};
 

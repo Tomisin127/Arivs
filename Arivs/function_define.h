@@ -9,6 +9,8 @@ type_tuple lambda_expression_manipulator(lambda p,generic* val)
     auto second_multimap = get<1>(local());
     auto third_param = get<2>(local());
 
+    auto get_sequence = get<3>(local());
+
     string labels,l_cummulative="";
     string stylings,s_cummulative="";
     string construct,referal="";
@@ -135,6 +137,9 @@ type_tuple lambda_expression_manipulator(lambda p,generic* val)
     arivs::composition_b.clear();
 
 
+    val->sequence = get_sequence;
+
+
     return make_tuple(construct,referal,s_cummulative,l_cummulative,class_name,style_type);
 }
 
@@ -158,23 +163,26 @@ void assert_mode_of_styling(string sty_typ, string name,generic *invoke,string t
 
 }
 
-
-template<typename T, typename... Args>
-void blueprint_a(T&& arg,Args&&...optional)
+void blueprint_a(vector<pair<string,string>> arg)
 {
 
-    arivs::attribute.push_back(pair<string,string>(arg));
-    blueprint_a(optional...);
+    for(auto&t : arg)
+    {
+        arivs::attribute.push_back(pair<string,string>(t));
+    }
+
     composition_a();
 
 }
 
-template<typename T, typename... Args>
-void blueprint_b(T&& arg,Args&&...optional)
+void blueprint_b(vector<pair<string,string>> arg)
 {
 
-    arivs::attribute.push_back(pair<string,string>(arg));
-    blueprint_b(optional...);
+    for(auto&t : arg)
+    {
+        arivs::attribute.push_back(pair<string,string>(t));
+    }
+
     composition_b();
 
 }
@@ -402,6 +410,8 @@ inline string script(string text, T&&...args)
     return _start;
 
 }
+
+
 
 string rgb(int red, int green, int blue)
 {

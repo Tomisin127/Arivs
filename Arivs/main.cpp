@@ -15,62 +15,126 @@ __DONATIONS AND SUPPORT__
 
 #include "arivs.h"
 
+
+    vector<pair<string,string>> ul_style = {i("lst","none"),i("margin","-8px"),i("padding","0"),i("w","auto")
+                                ,i("overflow","hidden"),i("position","sticky"),i("bg_clr","#6218A7")};
+
+    vector<pair<string,string>> li_style= {i("float","left"),i("display","inline")};
+
+    vector<pair<string,string>> a_style= {i("display","block"),i("color","white"),i("padding","20px 16px"),i("text_align","center"),i("text_decoration","none"),i("font_family"," 'Segoe UI',Tahoma, Geneva,Verdana, sans-serif;"),
+                                i("transition","200ms ease-in-out")};
+
+    vector<string> combo1 ={" "," "};
+    vector<string> combo2 ={" "," "};
+    vector<string> combo3 ={" "," "," "};
+    vector<string> combo4 ={" "," "," "," "};
+
+    vector<pair<string,string>>a_not_style = {i("href","about.html")};
+
+    generic *a[2];
+
+void a_func()
+{
+        for(int k=0; k<=2; k++)
+    {
+
+     a[k]={ new generic("a",[&](){blueprint_a(a_not_style); blueprint_b(a_style);
+        return as_tuple(arivs::external_style,combo4);
+        },"")};
+    }
+
+}
+
 int main()
 {
-
-
     exterior anchor_point;
 
     link_css("text/css", "css_demo.css","stylesheet", "");
 
     set_file("html_demo.html","css_demo.css");
 
-    generic nav("nav",[](){
-            return as_tuple(arivs::nothing,arivs::nothing,arivs::inline_style);
+
+    generic nav("nav",[&](){
+            return as_tuple(arivs::external_style,combo1);
     },"");
 
-    generic ul("ul",[](){
-                    blueprint_b(i("lst","none"),i("margin","-8px"),i("padding","0"),i("w","auto")
-                                ,i("overflow","hidden"),i("position","sticky"),i("bg_clr","#6218A7"));
-
-                    return as_tuple(arivs::nothing,arivs::composition_b,arivs::inline_style);
-    },"");
-
-
-    generic li("li",[](){
-                    blueprint_b(i("float","left"),i("display","inline"));
-
-                    return as_tuple(arivs::nothing,arivs::composition_b,arivs::inline_style);
+    generic ul("ul",[&](){
+                    blueprint_b(ul_style);
+                    return as_tuple(arivs::external_style,combo2);
     },"");
 
 
-    generic a("a",[](){
-                    blueprint_a(i("href","ads.html"));
-                    blueprint_b(i("display","block"),i("color","white"),i("padding","20px 16px"),i("text_align","center"),i("text_decoration","none"),i("font_family"," 'Segoe UI',Tahoma, Geneva,Verdana, sans-serif;"),
-                                i("transition","200ms ease-in-out"));
+    generic *li[2];
 
-                    return as_tuple(arivs::composition_a,arivs::composition_b,arivs::external_style);
-    },"Home");
+    for(int i=0; i <= 2;i++)
+    {
+        li[i]= {new generic("li",[&](){ blueprint_b(li_style); return as_tuple(arivs::external_style,combo3); },"")};
+    }
 
+    a_func();
 
     nav.add_element(ul);
 
-    ul.add_element(li);
+    for(int i=0;i <=2; i++)
+    {
+        ul.add_element(li[i]);
 
-    li.add_element(a);
-    li.add_element(a);
-    li.add_element(a);
+        a[0]->txt="Home";
+        a[1]->txt="Advertise";
+        a[2]->txt="About";
+
+        li[i]->add_element(a[i]);
+
+
+    }
+
+    //finalize the objects
 
     nav.finalize();
     ul.finalize();
-    li.finalize();
-    a.finalize();
+    li[0]->finalize();
+    a[0]->finalize();
+
+    //for the hover styling
+
+    a[0]->inherit=":hover";
+    a[0]->style_used={("background-color : #FFFFFF; "),("color: black")};
+    a[0]->finalize();
+
+    generic ads("div",[](){
+                blueprint_a({i("class","ads_div")});
+                blueprint_b({i("border_radius","8px"),i("box_shadow","0 0 10px #888888"),i("w","1200px"),
+                i("h","420px"),i("padding","4px"),i("margin","100px"),i("display","flex"),i("jc","center"),
+                i("ai","center"),i("font_family", " 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif "),i("font_size","32px")});
+
+                return as_tuple(arivs::external_style,{});
+
+                },"MADE WITH ARIVS");
+
+    generic footer("div",[](){
+                   blueprint_a({i("id","footer")});
+                   blueprint_b({i("h","100px"),i("font_size","16px"),i("display","flex"),i("flex_direction","row"),
+                               i("flex_wrap","wrap"),i("jc","space-evenly"),i("ai","center"),i("font_family"," 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif"),
+                               i("bg_clr","#6218A7 !important"),i("color","white")});
+
+                   return as_tuple(arivs::external_style,{});
+
+                   },"The Ads Page<br>&copy;Copyright 2020");
+
+    ads.finalize();
+    footer.finalize();
 
     anchor_point.root =&nav;
-
     anchor_point.display();
 
-    read_to_html_at_once();
+    anchor_point.root = &ads;
+    anchor_point.display();
 
+
+    anchor_point.root = &footer;
+    anchor_point.display();
+
+
+    read_to_html_at_once();
 
 }
